@@ -127,7 +127,7 @@
         .timer-warning { color: var(--danger); animation: pulse 0.5s infinite alternate; }
         @keyframes pulse { from { opacity: 1; } to { opacity: 0.6; } }
 
-        /* --- BGM Switch 樣式 (修正版) --- */
+        /* --- BGM Switch 樣式 --- */
         .switch-container { display: inline-flex; align-items: center; justify-content: center; margin-top: 15px; font-size: 0.9rem; font-weight: 500; color: #a4b0be; cursor: pointer; gap: 8px; }
         
         .toggle-box { 
@@ -142,14 +142,9 @@
             transition: transform 0.3s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); 
         }
         
-        /* ★ ON 狀態：父層有 active 時，內部 toggle-box 變藍色 */
-        .switch-container.active .toggle-box { 
-            background: var(--switch-on-color); 
-        }
-        /* ★ ON 狀態：圓點位移 */
-        .switch-container.active .toggle-circle { 
-            transform: translateX(18px); 
-        }
+        /* ON 狀態 */
+        .switch-container.active .toggle-box { background: var(--switch-on-color); }
+        .switch-container.active .toggle-circle { transform: translateX(18px); }
 
         .reload-link { margin-top: 25px; font-size: 0.9rem; color: #ccc; cursor:pointer; font-weight: 500; transition: color 0.3s; display: inline-flex; align-items: center; gap: 5px; }
         .reload-link:hover { color: var(--danger); }
@@ -160,27 +155,22 @@
         .guide-section { margin-bottom: 18px; line-height: 1.6; font-size: 1rem; color: #555; text-align: left;}
         .guide-section strong { color: var(--accent-color); }
 
-        /* --- ★ RWD 手機版優化：按鈕防擋 + 標題避讓 --- */
+        /* --- RWD 手機版優化 --- */
         @media (max-width: 600px) {
             .variety-box { 
                 padding: 25px 20px; 
                 padding-top: 60px; /* 增加頂部留白，給按鈕群組用 */
             }
-            
-            /* 手機版：按鈕群組不再絕對定位，改為相對定位並置頂，確保不重疊 */
             .top-btn-group {
                 position: absolute;
                 top: 15px;
                 right: 15px;
                 width: auto;
             }
-            
-            /* 標題不需額外 margin，因為容器 padding 已經撐開 */
             h1 { 
                 font-size: 1.8rem; 
                 margin-top: 0;
             }
-            
             #question-display { min-height: 180px; font-size: 3rem; } 
             .btn { font-size: 1.3rem; padding: 14px; }
         }
@@ -195,7 +185,7 @@
             <div class="modal-title"><i class="fas fa-book-open"></i> 遊戲規則</div>
             <div class="guide-section"><strong><i class="fas fa-shapes"></i> 1. 基礎與進階</strong><br>「基礎題」多為具象好畫的成語；「進階題」則為抽象或複雜的挑戰。</div>
             <div class="guide-section"><strong><i class="fas fa-brain"></i> 2. 智慧不重複</strong><br>系統會記住這台裝置玩過的題目，直到題庫用盡。</div>
-            <div class="guide-section"><strong><i class="fas fa-stopwatch"></i> 3. 操作密技</strong><br>時間設定可按上下鍵增減 10 秒。遊戲中可按「放棄」回到首頁。</div>
+            <div class="guide-section"><strong><i class="fas fa-stopwatch"></i> 3. 接力不間斷</strong><br>時間到後，按鈕會自動重置，下一棒可直接按下重新計時。</div>
             <div class="guide-section"><strong><i class="fas fa-trash-alt"></i> 4. 重置紀錄</strong><br>若想重新遊玩所有題目，請點擊設定頁下方的「清除紀錄」。</div>
             <button class="btn" onclick="closeGuide(null)" style="margin-top:10px;">
                 <i class="fas fa-check"></i> 我知道了
@@ -238,7 +228,7 @@
         </div>
 
         <div class="switch-container active" onclick="toggleBGMSetup()" id="setup-bgm-switch">
-            <div class="toggle-box"><div class="toggle-circle"></div></div>
+            <div class="toggle-box"><div class="toggle-circle" style="transform: translateX(18px);"></div></div>
             <span><i class="fas fa-music"></i> 背景音樂 (BGM)</span>
         </div>
 
@@ -277,7 +267,7 @@
         
         <div style="margin-top: 15px;">
             <div class="switch-container active" onclick="toggleBGMGame()" id="game-bgm-switch">
-                <div class="toggle-box"><div class="toggle-circle"></div></div>
+                <div class="toggle-box"><div class="toggle-circle" style="transform: translateX(18px);"></div></div>
                 <span><i class="fas fa-music"></i> BGM</span>
             </div>
         </div>
@@ -293,7 +283,7 @@
         let currentIndex = -1;
         let timerDuration = 60;
         let timerInterval = null;
-        let isBGMOn = true; // 預設開啟 BGM
+        let isBGMOn = true; 
         let audioContext = null;
         let playedHistory = JSON.parse(localStorage.getItem('playedIdiomsHistory')) || [];
         let isDemoMode = false;
@@ -313,7 +303,6 @@
         const advRemainLabel = document.getElementById('adv-remain');
         const demoRibbon = document.getElementById('demo-ribbon');
 
-        // --- 檢查題庫 ---
         if (typeof db_basic === 'undefined' || typeof db_advanced === 'undefined') {
             alert("⚠️ 錯誤：找不到題庫檔案 questions.js！\n請確認 index.html 與 questions.js 放在同一個資料夾內。");
         }
@@ -426,7 +415,7 @@
             levelTag.style.color = q.color;
         }
 
-        // --- 3. 計時器與音效 ---
+        // --- 3. 計時器與音效 (接力版修正：時間到不鎖定) ---
         function toggleTimer() {
             if (timerInterval) { stopTimer(); return; }
             let timeLeft = timerDuration;
@@ -448,9 +437,11 @@
                     playBeep(200, 1.5, 'sawtooth', 1.0); 
                     timerDisplay.innerHTML = '<i class="fas fa-times-circle"></i> 時間到';
                     stopTimer();
-                    timerBtn.innerHTML = '<i class="fas fa-stopwatch"></i> 開始計時';
-                    timerBtn.disabled = true;
-                    timerBtn.style.background = "#ccc";
+                    // ★ 關鍵修正：時間到後，重置按鈕為「重新計時」狀態，讓下一棒可按
+                    timerBtn.innerHTML = '<i class="fas fa-redo"></i> 重新計時';
+                    timerBtn.disabled = false; // 保持啟用
+                    timerBtn.classList.add('btn-blue'); // 恢復藍色
+                    timerBtn.style.background = ""; // 清除灰色覆蓋
                 }
             }, 1000);
         }
@@ -459,6 +450,8 @@
             clearInterval(timerInterval); 
             timerInterval = null; 
             timerDisplay.classList.remove('timer-warning'); 
+            // 只有在非時間到（手動停止）的情況下，才需要手動重置按鈕文字
+            // 但因為 toggleTimer 的邏輯，這裡統一重置也無妨，重點是時間到時的邏輯
             if(!timerBtn.disabled) {
                 timerBtn.innerHTML = '<i class="fas fa-stopwatch"></i> 開始計時';
                 timerBtn.classList.add('btn-blue');
@@ -484,7 +477,7 @@
         function toggleBGMGame() { isBGMOn = !isBGMOn; updateSwitchUI('setup-bgm-switch', isBGMOn); updateSwitchUI('game-bgm-switch', isBGMOn); if (isBGMOn) bgmPlayer.play(); else bgmPlayer.pause(); }
         
         function updateSwitchUI(id, isOn) { 
-            const container = document.getElementById(id); // 此處修正為抓取 container
+            const container = document.getElementById(id);
             if (isOn) {
                 container.classList.add('active'); 
             } else {
