@@ -14,16 +14,13 @@
             --main-bg: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
             --box-bg: #ffffff;
             --box-shadow: 0 10px 30px rgba(0,0,0,0.25);
-            
             --text-main: #2c3e50;
             --text-sub: #636e72;
-            
-            --accent-color: #ff6b6b; /* 珊瑚紅 */
-            --secondary-color: #48dbfb; /* 天藍 */
+            --accent-color: #ff6b6b;
+            --secondary-color: #48dbfb;
             --secondary-dark: #0abde3;
-            --gold: #feca57; /* 金色 icon 用 */
-            
             --danger: #ff4757;
+            --demo-color: #f1c40f; /* 試玩模式專用黃色 */
         }
 
         * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
@@ -46,66 +43,68 @@
             width: 100%; max-width: 600px;
             text-align: center; 
             border: 1px solid rgba(255,255,255,0.1);
+            overflow: hidden; /* 確保緞帶不會凸出去 */
         }
 
-        /* 標題區域優化 */
         h1 {
-            color: var(--text-main); 
-            font-weight: 900; 
-            font-size: 2.2rem; 
-            margin: 10px 0 25px 0;
-            letter-spacing: 1px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px; /* 圖示與文字的距離 */
+            color: var(--text-main); font-weight: 900; font-size: 2.2rem; 
+            margin: 10px 0 25px 0; letter-spacing: 1px;
+            display: flex; align-items: center; justify-content: center; gap: 15px;
         }
-        
-        /* 標題圖示顏色 */
         h1 i { color: var(--accent-color); font-size: 1.8rem; }
 
-        /* 右上角規則按鈕 */
-        #guide-btn-integrated {
-            position: absolute;
-            top: 20px; right: 20px;
-            background: #f1f2f6;
-            color: #747d8c;
+        /* --- 懸浮按鈕群組 (右上角) --- */
+        .top-btn-group {
+            position: absolute; top: 20px; right: 20px;
+            display: flex; gap: 10px;
+        }
+
+        .circle-btn {
+            background: #f1f2f6; color: #747d8c;
             border: none; border-radius: 50%;
             width: 40px; height: 40px;
-            font-size: 1.2rem;
-            cursor: pointer;
+            font-size: 1.2rem; cursor: pointer;
             display: flex; align-items: center; justify-content: center;
             transition: all 0.2s;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
-        #guide-btn-integrated:hover {
-            background: var(--secondary-dark); color: #fff; transform: rotate(15deg);
+        .circle-btn:hover { background: var(--secondary-dark); color: #fff; transform: scale(1.1); }
+        
+        /* Demo 按鈕特製樣式 */
+        #demo-btn { color: #f39c12; }
+        #demo-btn:hover { background: #f39c12; color: #fff; }
+
+        /* --- 試玩模式懸浮緞帶 (Ribbon) --- */
+        .demo-ribbon {
+            position: absolute;
+            top: 25px; left: -30px;
+            width: 120px;
+            background: var(--demo-color);
+            color: #333;
+            font-weight: 900;
+            font-size: 0.8rem;
+            text-align: center;
+            line-height: 25px;
+            transform: rotate(-45deg);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 10;
+            display: none; /* 預設隱藏 */
+            pointer-events: none; /* 讓點擊穿透，不擋操作 */
         }
 
         .setting-group { margin-bottom: 20px; text-align: left; padding: 0 10px; }
-        
-        /* 標籤加上圖示 */
-        .setting-group label {
-            display: flex; align-items: center; gap: 8px;
-            color: var(--text-main);
-            font-weight: 700; font-size: 1.1rem; margin-bottom: 8px;
-        }
+        .setting-group label { display: flex; align-items: center; gap: 8px; color: var(--text-main); font-weight: 700; font-size: 1.1rem; margin-bottom: 8px; }
         .setting-group label i { color: var(--secondary-dark); width: 20px; text-align: center; }
-
         .remain-hint { font-size: 0.85rem; color: var(--text-sub); margin-top: 5px; font-weight: 500; margin-left: 30px; }
 
-        input[type="number"] { 
-            width: 100%; border: 2px solid #dfe4ea; border-radius: 12px; padding: 12px; 
-            font-size: 1.4rem; font-weight: 700; text-align: center; color: #2f3542; background: #f1f2f6; transition: border-color 0.2s;
-        }
+        input[type="number"] { width: 100%; border: 2px solid #dfe4ea; border-radius: 12px; padding: 12px; font-size: 1.4rem; font-weight: 700; text-align: center; color: #2f3542; background: #f1f2f6; transition: border-color 0.2s; }
         input[type="number"]:focus { border-color: var(--secondary-dark); outline: none; background: #fff; }
 
         .btn {
             background: var(--accent-color); color: #fff; border: none; border-radius: 50px; 
-            padding: 16px 30px; font-size: 1.4rem; font-weight: 700; 
-            cursor: pointer; width: 100%; margin-top: 20px;
+            padding: 16px 30px; font-size: 1.4rem; font-weight: 700; cursor: pointer; width: 100%; margin-top: 20px;
             box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4); transition: all 0.2s;
-            display: flex; align-items: center; justify-content: center; gap: 10px; /* 圖示文字間距 */
+            display: flex; align-items: center; justify-content: center; gap: 10px;
         }
         .btn:active { transform: scale(0.98); box-shadow: 0 2px 5px rgba(255, 107, 107, 0.2); }
         .btn:disabled { background: #ced6e0; box-shadow: none; cursor: not-allowed; }
@@ -116,18 +115,12 @@
         .btn-quit {
             background: transparent; color: #a4b0be; border: none; box-shadow: none;
             font-size: 0.9rem; padding: 15px; margin-top: 10px; text-decoration: none; width: auto;
-            cursor: pointer; transition: color 0.3s;
-            display: inline-flex; align-items: center; gap: 5px;
+            cursor: pointer; transition: color 0.3s; display: inline-flex; align-items: center; gap: 5px;
         }
         .btn-quit:hover { color: var(--danger); text-decoration: underline; }
 
         #game-screen { display: none; }
-
-        .status-bar {
-            display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; 
-            font-size: 1rem; font-weight: 700; color: #57606f; 
-            background: #f1f2f6; padding: 10px 20px; border-radius: 50px;
-        }
+        .status-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; font-size: 1rem; font-weight: 700; color: #57606f; background: #f1f2f6; padding: 10px 20px; border-radius: 50px; }
         .status-bar i { margin-right: 5px; }
 
         #question-display {
@@ -137,11 +130,7 @@
             border-radius: 20px; margin: 15px 0; padding: 10px; word-break: keep-all;
         }
 
-        .timer-box { 
-            font-size: 2.5rem; font-weight: 700; margin: 10px auto; padding: 5px 30px; 
-            color: var(--secondary-dark); display: inline-flex; align-items: center; gap: 10px;
-            font-feature-settings: "tnum";
-        }
+        .timer-box { font-size: 2.5rem; font-weight: 700; margin: 10px auto; padding: 5px 30px; color: var(--secondary-dark); display: inline-flex; align-items: center; gap: 10px; font-feature-settings: "tnum"; }
         .timer-warning { color: var(--danger); animation: pulse 0.5s infinite alternate; }
         @keyframes pulse { from { opacity: 1; } to { opacity: 0.6; } }
 
@@ -186,9 +175,14 @@
     </div>
 
     <div id="setup-screen" class="variety-box">
-        <button id="guide-btn-integrated" onclick="openGuide()" title="規則說明">
-            <i class="fas fa-question"></i>
-        </button>
+        <div class="top-btn-group">
+            <button class="circle-btn" id="demo-btn" onclick="startDemo()" title="試玩模式 (Demo)">
+                <i class="fas fa-gamepad"></i>
+            </button>
+            <button class="circle-btn" onclick="openGuide()" title="規則說明">
+                <i class="fas fa-question"></i>
+            </button>
+        </div>
 
         <h1>
             <i class="fas fa-palette"></i> 
@@ -214,7 +208,7 @@
         </div>
 
         <div class="switch-container" onclick="toggleBGMSetup()" id="setup-bgm-switch">
-            <div class="toggle-box"><div class="toggle-circle"></div></div>
+            <div class="toggle-box active"><div class="toggle-circle" style="transform: translateX(18px);"></div></div>
             <span><i class="fas fa-music"></i> 背景音樂 (BGM)</span>
         </div>
 
@@ -228,6 +222,8 @@
     </div>
 
     <div id="game-screen" class="variety-box">
+        <div id="demo-ribbon" class="demo-ribbon">🚧 試玩模式</div>
+
         <div class="status-bar">
             <span id="level-tag" style="color:var(--secondary-dark);">
                 <i class="fas fa-tag"></i> 基礎題
@@ -251,7 +247,7 @@
         
         <div style="margin-top: 15px;">
             <div class="switch-container" onclick="toggleBGMGame()" id="game-bgm-switch">
-                <div class="toggle-box"><div class="toggle-circle"></div></div>
+                <div class="toggle-box active"><div class="toggle-circle" style="transform: translateX(18px);"></div></div>
                 <span><i class="fas fa-music"></i> BGM</span>
             </div>
         </div>
@@ -267,9 +263,10 @@
         let currentIndex = -1;
         let timerDuration = 60;
         let timerInterval = null;
-        let isBGMOn = false;
+        let isBGMOn = true; // ★ 預設開啟 BGM
         let audioContext = null;
         let playedHistory = JSON.parse(localStorage.getItem('playedIdiomsHistory')) || [];
+        let isDemoMode = false; // ★ 新增試玩模式旗標
 
         // --- DOM ---
         const setupScreen = document.getElementById('setup-screen');
@@ -284,6 +281,7 @@
         const guideModal = document.getElementById('guide-modal');
         const basicRemainLabel = document.getElementById('basic-remain');
         const advRemainLabel = document.getElementById('adv-remain');
+        const demoRibbon = document.getElementById('demo-ribbon'); // 懸浮標籤
 
         // --- 檢查題庫 ---
         if (typeof db_basic === 'undefined' || typeof db_advanced === 'undefined') {
@@ -302,7 +300,33 @@
         function openGuide() { guideModal.style.display = 'flex'; }
         function closeGuide(event) { if (event === null || event.target === guideModal) guideModal.style.display = 'none'; }
 
-        // --- 1. 開始遊戲 ---
+        // --- ★ 試玩模式專用函數 ---
+        function startDemo() {
+            if(!confirm("【試玩模式說明】\n\n1. 此模式不會消耗正式題庫。\n2. 僅提供 2 題範例 (基礎/進階各一)。\n3. 每題時間固定為 8 秒，用於熟悉倒數音效。\n\n準備好要開始試玩了嗎？")) {
+                return;
+            }
+
+            // 設定假資料
+            gameQueue = [
+                {text: "一五一十", type: "基礎範例", color: "var(--secondary-dark)"},
+                {text: "七上八下", type: "進階範例", color: "var(--accent-color)"}
+            ];
+            
+            timerDuration = 8; // 試玩固定 8 秒
+            isDemoMode = true; // 標記為試玩模式
+
+            // 顯示畫面
+            setupScreen.style.display = 'none';
+            gameScreen.style.display = 'block';
+            demoRibbon.style.display = 'block'; // 顯示試玩標籤
+
+            if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            if (isBGMOn) bgmPlayer.play().catch(e => console.log("User interaction needed for BGM"));
+
+            nextQuestion();
+        }
+
+        // --- 1. 開始遊戲 (正式版) ---
         function startGame() {
             const basicCount = parseInt(document.getElementById('basic-count').value) || 0;
             const advCount = parseInt(document.getElementById('adv-count').value) || 0;
@@ -322,11 +346,14 @@
             const finalAdv = shuffleArray([...availableAdv]).slice(0, advCount).map(t => ({text: t, type: '進階題', color: 'var(--accent-color)'}));
             
             gameQueue = [...finalBasic, ...finalAdv];
+            isDemoMode = false; // 標記為正式模式
 
             if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
             setupScreen.style.display = 'none';
             gameScreen.style.display = 'block';
-            if (isBGMOn) { bgmPlayer.volume = 0.5; bgmPlayer.play().catch(e => console.log("BGM Blocked")); }
+            demoRibbon.style.display = 'none'; // 隱藏試玩標籤
+            
+            if (isBGMOn) bgmPlayer.play().catch(e => console.log("User interaction needed for BGM"));
 
             nextQuestion();
         }
@@ -334,21 +361,22 @@
         // --- 2. 題目控制 ---
         function nextQuestion() {
             stopTimer();
-            // 重置計時器顯示
             timerDisplay.innerHTML = '<i class="fas fa-clock"></i> ' + timerDuration;
             timerDisplay.classList.remove('timer-warning');
             
             timerBtn.innerHTML = '<i class="fas fa-stopwatch"></i> 開始計時';
             timerBtn.disabled = false;
             timerBtn.classList.add('btn-blue');
-            timerBtn.style.background = ""; // 清除可能殘留的樣式
+            timerBtn.style.background = ""; 
 
             currentIndex++;
 
             if (currentIndex >= gameQueue.length) {
-                questionDisplay.innerHTML = "<span style='font-size: 2.5rem; color:var(--accent-color);'><i class='fas fa-flag-checkered'></i> 挑戰結束！</span>";
+                // 結束畫面
+                let endText = isDemoMode ? "試玩結束" : "挑戰結束";
+                questionDisplay.innerHTML = `<span style='font-size: 2.5rem; color:var(--accent-color);'><i class='fas fa-flag-checkered'></i> ${endText}！</span>`;
                 progressText.innerText = "END"; levelTag.innerHTML = "";
-                nextBtn.innerHTML = "<i class='fas fa-redo'></i> 新的一局";
+                nextBtn.innerHTML = isDemoMode ? "<i class='fas fa-home'></i> 回設定頁" : "<i class='fas fa-redo'></i> 新的一局";
                 nextBtn.onclick = () => location.reload();
                 timerBtn.disabled = true;
                 timerBtn.classList.remove('btn-blue');
@@ -359,8 +387,11 @@
             const q = gameQueue[currentIndex];
             questionDisplay.innerText = q.text;
 
-            playedHistory.push(q.text);
-            localStorage.setItem('playedIdiomsHistory', JSON.stringify(playedHistory));
+            // ★ 關鍵：只有「非試玩模式」才存入歷史紀錄
+            if (!isDemoMode) {
+                playedHistory.push(q.text);
+                localStorage.setItem('playedIdiomsHistory', JSON.stringify(playedHistory));
+            }
             
             const isMobile = window.innerWidth < 600;
             if (q.text.length > 5) {
@@ -432,7 +463,14 @@
         function toggleBGMGame() { isBGMOn = !isBGMOn; updateSwitchUI('setup-bgm-switch', isBGMOn); updateSwitchUI('game-bgm-switch', isBGMOn); if (isBGMOn) bgmPlayer.play(); else bgmPlayer.pause(); }
         function updateSwitchUI(id, isOn) { 
             const box = document.getElementById(id);
-            if (isOn) box.classList.add('active'); else box.classList.remove('active'); 
+            const circle = box.querySelector('.toggle-circle');
+            if (isOn) {
+                box.classList.add('active'); 
+                circle.style.transform = "translateX(18px)";
+            } else {
+                box.classList.remove('active');
+                circle.style.transform = "translateX(0)";
+            }
         }
         function shuffleArray(array) { for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [array[i], array[j]] = [array[j], array[i]]; } return array; }
 
