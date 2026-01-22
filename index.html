@@ -20,8 +20,9 @@
             --secondary-color: #48dbfb;
             --secondary-dark: #0abde3;
             --danger: #ff4757;
-            --demo-color: #f1c40f; 
             --switch-on-color: #007bff; 
+            --prep-color: #3498db; 
+            --draw-color: #2ecc71; 
         }
 
         * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
@@ -51,35 +52,49 @@
             color: var(--text-main); font-weight: 900; font-size: 2.2rem; 
             margin: 10px 0 25px 0; letter-spacing: 1px;
             display: flex; align-items: center; justify-content: center; gap: 15px;
-            transition: margin-top 0.3s;
+            transition: margin-top 0.3s; 
         }
         h1 i { color: var(--accent-color); font-size: 1.8rem; }
 
-        .top-btn-group {
-            position: absolute; top: 20px; right: 20px;
-            display: flex; gap: 10px; z-index: 100;
-        }
+        .top-btn-group { position: absolute; top: 20px; right: 20px; display: flex; gap: 10px; z-index: 100; }
 
         .circle-btn {
-            background: #f1f2f6; color: #747d8c;
-            border: none; border-radius: 50%;
-            width: 40px; height: 40px;
-            font-size: 1.2rem; cursor: pointer;
+            background: #f1f2f6; color: #747d8c; border: none; border-radius: 50%;
+            width: 40px; height: 40px; font-size: 1.2rem; cursor: pointer;
             display: flex; align-items: center; justify-content: center;
-            transition: all 0.2s;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: all 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         .circle-btn:hover { background: var(--secondary-dark); color: #fff; transform: scale(1.1); }
         
         #demo-btn { color: #f39c12; }
         #demo-btn:hover { background: #f39c12; color: #fff; }
 
+        /* --- ★ 試玩模式標籤 (視覺強化版) --- */
         .demo-ribbon {
-            position: absolute; top: 25px; left: -30px; width: 120px;
-            background: var(--demo-color); color: #333; font-weight: 900;
-            font-size: 0.8rem; text-align: center; line-height: 25px;
-            transform: rotate(-45deg); box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            z-index: 10; display: none; pointer-events: none; 
+            position: absolute;
+            top: 35px;          /* 稍微往下移 */
+            left: -45px;        /* 調整位置確保置中 */
+            width: 180px;       /* 加寬 */
+            background: #ffeb3b; /* 鮮黃色 */
+            color: #d32f2f;      /* 深紅色字體 (警示感) */
+            font-weight: 900;
+            font-size: 1.2rem;   /* 字體加大 */
+            text-align: center;
+            line-height: 40px;   /* 變厚 */
+            transform: rotate(-45deg);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3); /* 強烈陰影 */
+            z-index: 200;       /* 確保在最上層 */
+            display: none;      /* 預設隱藏 */
+            pointer-events: none;
+            border: 3px solid #fff; /* 白色邊框增加層次 */
+            animation: ribbon-pulse 2s infinite ease-in-out; /* 加入呼吸燈動畫 */
+        }
+
+        /* 呼吸燈動畫 */
+        @keyframes ribbon-pulse {
+            0% { transform: rotate(-45deg) scale(1); }
+            50% { transform: rotate(-45deg) scale(1.05); } /* 稍微放大 */
+            100% { transform: rotate(-45deg) scale(1); }
         }
 
         .setting-group { margin-bottom: 20px; text-align: left; padding: 0 10px; }
@@ -120,24 +135,29 @@
             border-radius: 20px; margin: 15px 0; padding: 10px; word-break: keep-all;
         }
 
-        .timer-box { font-size: 2.5rem; font-weight: 700; margin: 10px auto; padding: 5px 30px; color: var(--secondary-dark); display: inline-flex; align-items: center; gap: 10px; font-feature-settings: "tnum"; }
-        .timer-warning { color: var(--danger); animation: pulse 0.5s infinite alternate; }
+        .timer-container { margin: 10px auto; display: flex; flex-direction: column; align-items: center; }
+        
+        .timer-box { 
+            font-size: 2.8rem; font-weight: 700; padding: 5px 30px; 
+            color: var(--secondary-dark); 
+            display: inline-flex; align-items: center; gap: 10px; 
+            font-feature-settings: "tnum"; 
+            transition: color 0.3s;
+        }
+        
+        .timer-hint { font-size: 1rem; font-weight: 700; color: #aaa; margin-bottom: 5px; min-height: 1.2em; transition: color 0.3s;}
+
+        .timer-prep .timer-box { color: var(--prep-color); }
+        .timer-prep .timer-hint { color: var(--prep-color); }
+        .timer-draw .timer-box { color: var(--draw-color); }
+        .timer-draw .timer-hint { color: var(--draw-color); }
+
+        .timer-warning { color: var(--danger) !important; animation: pulse 0.5s infinite alternate; }
         @keyframes pulse { from { opacity: 1; } to { opacity: 0.6; } }
 
         .switch-container { display: inline-flex; align-items: center; justify-content: center; margin-top: 15px; font-size: 0.9rem; font-weight: 500; color: #a4b0be; cursor: pointer; gap: 8px; }
-        
-        .toggle-box { 
-            width: 40px; height: 22px; 
-            background: #dfe4ea; 
-            border-radius: 20px; position: relative; transition: background 0.3s; 
-        }
-        .toggle-circle { 
-            width: 16px; height: 16px; 
-            background: #fff; border-radius: 50%; 
-            position: absolute; top: 3px; left: 3px; 
-            transition: transform 0.3s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); 
-        }
-        
+        .toggle-box { width: 40px; height: 22px; background: #dfe4ea; border-radius: 20px; position: relative; transition: background 0.3s; }
+        .toggle-circle { width: 16px; height: 16px; background: #fff; border-radius: 50%; position: absolute; top: 3px; left: 3px; transition: transform 0.3s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
         .switch-container.active .toggle-box { background: var(--switch-on-color); }
         .switch-container.active .toggle-circle { transform: translateX(18px); }
 
@@ -151,13 +171,8 @@
         .guide-section strong { color: var(--accent-color); }
 
         @media (max-width: 600px) {
-            .variety-box { 
-                padding: 25px 20px; 
-                padding-top: 60px; 
-            }
-            .top-btn-group {
-                position: absolute; top: 15px; right: 15px; width: auto;
-            }
+            .variety-box { padding: 25px 20px; padding-top: 60px; }
+            .top-btn-group { position: absolute; top: 15px; right: 15px; width: auto; }
             h1 { font-size: 1.8rem; margin-top: 0; }
             #question-display { min-height: 180px; font-size: 3rem; } 
             .btn { font-size: 1.3rem; padding: 14px; }
@@ -171,10 +186,12 @@
     <div id="guide-modal" class="modal-overlay" onclick="closeGuide(event)">
         <div class="modal-box" onclick="event.stopPropagation()">
             <div class="modal-title"><i class="fas fa-book-open"></i> 遊戲規則</div>
-            <div class="guide-section"><strong><i class="fas fa-shapes"></i> 1. 基礎與進階</strong><br>「基礎題」多為具象好畫的成語；「進階題」則為抽象或複雜的挑戰。</div>
-            <div class="guide-section"><strong><i class="fas fa-brain"></i> 2. 智慧不重複</strong><br>系統會記住這台裝置玩過的題目，直到題庫用盡。</div>
-            <div class="guide-section"><strong><i class="fas fa-stopwatch"></i> 3. 接力不間斷</strong><br>時間到後，按鈕會自動重置，下一棒可直接按下重新計時。</div>
-            <div class="guide-section"><strong><i class="fas fa-trash-alt"></i> 4. 重置紀錄</strong><br>若想重新遊玩所有題目，請點擊設定頁下方的「清除紀錄」。</div>
+            <div class="guide-section"><strong><i class="fas fa-eye"></i> 1. 構思與作畫</strong><br>
+                • <span style="color:#3498db">藍色構思期</span>：新題目 10秒 / 接力 5秒 (勿動筆)<br>
+                • <span style="color:#2ecc71">綠色作畫期</span>：聽到哨音後開始作畫！
+            </div>
+            <div class="guide-section"><strong><i class="fas fa-stopwatch"></i> 2. 自動流程</strong><br>按下「下一題」後，自動開始 10秒 倒數。</div>
+            <div class="guide-section"><strong><i class="fas fa-running"></i> 3. 接力玩法</strong><br>時間到後，按鈕會重置。下一棒按下按鈕，會先有 5秒 看畫時間，才開始計時。</div>
             <button class="btn" onclick="closeGuide(null)" style="margin-top:10px;">
                 <i class="fas fa-check"></i> 我知道了
             </button>
@@ -183,7 +200,7 @@
 
     <div id="setup-screen" class="variety-box">
         <div class="top-btn-group">
-            <button class="circle-btn" id="demo-btn" onclick="startDemo()" title="試玩模式 (Demo)">
+            <button class="circle-btn" id="demo-btn" onclick="startDemo()" title="試玩模式">
                 <i class="fas fa-gamepad"></i>
             </button>
             <button class="circle-btn" onclick="openGuide()" title="規則說明">
@@ -191,11 +208,7 @@
             </button>
         </div>
 
-        <h1>
-            <i class="fas fa-palette"></i> 
-            你畫我猜 
-            <span style="font-size:1.1rem; color:#888; font-weight:500; margin-top:8px;">成語版</span>
-        </h1>
+        <h1><i class="fas fa-palette"></i> 你畫我猜 <span style="font-size:1.1rem; color:#888; font-weight:500; margin-top:8px;">成語版</span></h1>
         
         <div class="setting-group">
             <label><i class="fas fa-cubes"></i> 基礎題數 (具象)</label>
@@ -210,7 +223,7 @@
         </div>
 
         <div class="setting-group">
-            <label><i class="fas fa-hourglass-half"></i> 倒數時間 (秒)</label>
+            <label><i class="fas fa-hourglass-half"></i> 作畫時間 (秒)</label>
             <input type="number" id="timer-set" value="20" min="10" step="10">
         </div>
 
@@ -222,30 +235,26 @@
         <button class="btn" onclick="startGame()">
             <i class="fas fa-play"></i> 開始挑戰
         </button>
-        
-        <div class="reload-link" onclick="resetHistory()">
-            <i class="fas fa-trash-alt"></i> 清除已玩紀錄 (重置題庫)
-        </div>
+        <div class="reload-link" onclick="resetHistory()"><i class="fas fa-trash-alt"></i> 清除已玩紀錄</div>
     </div>
 
     <div id="game-screen" class="variety-box">
         <div id="demo-ribbon" class="demo-ribbon">🚧 試玩模式</div>
 
         <div class="status-bar">
-            <span id="level-tag" style="color:var(--secondary-dark);">
-                <i class="fas fa-tag"></i> 基礎題
-            </span>
+            <span id="level-tag" style="color:var(--secondary-dark);"><i class="fas fa-tag"></i> 基礎題</span>
             <span id="progress-text">1 / 5</span>
         </div>
 
         <div id="question-display">準備中...</div>
         
-        <div class="timer-box" id="timer-display">
-            <i class="fas fa-clock"></i> --
+        <div id="timer-wrapper" class="timer-container">
+            <div id="timer-hint" class="timer-hint">準備開始</div>
+            <div class="timer-box" id="timer-display">--</div>
         </div>
 
         <button class="btn btn-blue" id="timer-btn" onclick="toggleTimer()">
-            <i class="fas fa-stopwatch"></i> 開始計時
+            <i class="fas fa-stopwatch"></i> 暫停 / 重置
         </button>
         
         <button class="btn" id="next-btn" onclick="nextQuestion()">
@@ -259,21 +268,19 @@
             </div>
         </div>
 
-        <button class="btn-quit" onclick="confirmQuit()">
-            <i class="fas fa-undo"></i> 放棄本局 / 回到設定
-        </button>
+        <button class="btn-quit" onclick="confirmQuit()"><i class="fas fa-undo"></i> 放棄本局 / 回到設定</button>
     </div>
 
     <script>
-        // --- 遊戲狀態 ---
         let gameQueue = [];
         let currentIndex = -1;
-        let timerDuration = 60;
+        let drawingDuration = 20; 
         let timerInterval = null;
         let isBGMOn = true; 
         let audioContext = null;
         let playedHistory = JSON.parse(localStorage.getItem('playedIdiomsHistory')) || [];
         let isDemoMode = false;
+        let timerPhase = 'idle'; 
 
         const setupScreen = document.getElementById('setup-screen');
         const gameScreen = document.getElementById('game-screen');
@@ -281,7 +288,9 @@
         const questionDisplay = document.getElementById('question-display');
         const progressText = document.getElementById('progress-text');
         const levelTag = document.getElementById('level-tag');
+        const timerWrapper = document.getElementById('timer-wrapper');
         const timerDisplay = document.getElementById('timer-display');
+        const timerHint = document.getElementById('timer-hint');
         const timerBtn = document.getElementById('timer-btn');
         const nextBtn = document.getElementById('next-btn');
         const guideModal = document.getElementById('guide-modal');
@@ -290,7 +299,7 @@
         const demoRibbon = document.getElementById('demo-ribbon');
 
         if (typeof db_basic === 'undefined' || typeof db_advanced === 'undefined') {
-            alert("⚠️ 錯誤：找不到題庫檔案 questions.js！\n請確認 index.html 與 questions.js 放在同一個資料夾內。");
+            alert("⚠️ 錯誤：找不到題庫檔案 questions.js！");
         }
 
         function updateRemainCounts() {
@@ -306,27 +315,25 @@
         function closeGuide(event) { if (event === null || event.target === guideModal) guideModal.style.display = 'none'; }
 
         function startDemo() {
-            if(!confirm("【試玩模式說明】\n\n1. 此模式不會消耗正式題庫。\n2. 僅提供 2 題範例 (基礎/進階各一)。\n3. 每題時間固定為 8 秒，用於熟悉倒數音效。\n\n準備好要開始試玩了嗎？")) {
-                return;
-            }
+            if(!confirm("【試玩模式】\n\n題目不會計入紀錄，作畫時間固定 8 秒。\n準備好了嗎？")) return;
             gameQueue = [
                 {text: "一五一十", type: "基礎範例", color: "var(--secondary-dark)"},
                 {text: "七上八下", type: "進階範例", color: "var(--accent-color)"}
             ];
-            timerDuration = 8;
+            drawingDuration = 8;
             isDemoMode = true;
             setupScreen.style.display = 'none';
             gameScreen.style.display = 'block';
             demoRibbon.style.display = 'block';
             if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            if (isBGMOn) bgmPlayer.play().catch(e => console.log("User interaction needed for BGM"));
+            if (isBGMOn) bgmPlayer.play().catch(e => console.log("BGM blocked"));
             nextQuestion();
         }
 
         function startGame() {
             const basicCount = parseInt(document.getElementById('basic-count').value) || 0;
             const advCount = parseInt(document.getElementById('adv-count').value) || 0;
-            timerDuration = parseInt(document.getElementById('timer-set').value) || 20;
+            drawingDuration = parseInt(document.getElementById('timer-set').value) || 20;
 
             if (basicCount + advCount === 0) { alert("請至少設定一題！"); return; }
 
@@ -334,7 +341,7 @@
             const availableAdv = db_advanced.filter(q => !playedHistory.includes(q));
 
             if (basicCount > availableBasic.length || advCount > availableAdv.length) {
-                alert(`題庫存量不足！\n\n基礎題剩: ${availableBasic.length}\n進階題剩: ${availableAdv.length}\n\n請減少設定數量。`);
+                alert(`題庫存量不足！\n請減少設定數量。`);
                 return;
             }
 
@@ -349,31 +356,27 @@
             gameScreen.style.display = 'block';
             demoRibbon.style.display = 'none';
             
-            if (isBGMOn) bgmPlayer.play().catch(e => console.log("User interaction needed for BGM"));
+            if (isBGMOn) bgmPlayer.play().catch(e => console.log("BGM blocked"));
 
             nextQuestion();
         }
 
         function nextQuestion() {
-            stopTimer();
-            timerDisplay.innerHTML = '<i class="fas fa-clock"></i> ' + timerDuration;
-            timerDisplay.classList.remove('timer-warning');
+            stopTimer(true); 
             
-            timerBtn.innerHTML = '<i class="fas fa-stopwatch"></i> 開始計時';
-            timerBtn.disabled = false;
-            timerBtn.classList.add('btn-blue');
-            timerBtn.style.background = ""; 
-
             currentIndex++;
 
             if (currentIndex >= gameQueue.length) {
                 let endText = isDemoMode ? "試玩結束" : "挑戰結束";
                 questionDisplay.innerHTML = `<span style='font-size: 2.5rem; color:var(--accent-color);'><i class='fas fa-flag-checkered'></i> ${endText}！</span>`;
-                progressText.innerText = "END"; levelTag.innerHTML = "";
+                progressText.innerText = "END"; 
+                timerDisplay.innerHTML = "--";
+                timerHint.innerText = "";
+                timerWrapper.className = "timer-container"; 
+                
                 nextBtn.innerHTML = isDemoMode ? "<i class='fas fa-home'></i> 回設定頁" : "<i class='fas fa-redo'></i> 新的一局";
                 nextBtn.onclick = () => location.reload();
                 timerBtn.disabled = true;
-                timerBtn.classList.remove('btn-blue');
                 timerBtn.style.background = "#ccc";
                 return;
             }
@@ -396,93 +399,140 @@
             progressText.innerText = `${currentIndex + 1} / ${gameQueue.length}`;
             levelTag.innerHTML = `<i class="fas fa-tag"></i> ${q.type}`;
             levelTag.style.color = q.color;
+
+            // ★ 自動流程：新題目 10秒
+            startPrepPhase(10);
         }
 
         function toggleTimer() {
-            if (timerInterval) { stopTimer(); return; }
-            let timeLeft = timerDuration;
-            timerDisplay.innerHTML = '<i class="fas fa-clock"></i> ' + timeLeft;
+            if (timerPhase === 'prep' || timerPhase === 'draw') {
+                stopTimer();
+                return;
+            }
+            // ★ 接力流程：接力構思 5秒
+            startPrepPhase(5);
+        }
+
+        function startPrepPhase(seconds) {
+            timerPhase = 'prep';
             
-            timerBtn.innerHTML = '<i class="fas fa-pause"></i> 停止';
-            timerBtn.classList.remove('btn-blue'); 
-            timerBtn.style.background = "#57606f";
+            timerWrapper.classList.remove('timer-draw');
+            timerWrapper.classList.add('timer-prep');
+            timerDisplay.classList.remove('timer-warning');
             
+            // ★ 提示文字區分
+            let hintText = (seconds === 10) ? "新題目：請構思 (勿動筆)" : "接力：請看畫 (勿動筆)";
+            timerHint.innerHTML = `<i class="fas fa-brain"></i> ${hintText}`;
+            
+            timerBtn.innerHTML = '<i class="fas fa-pause"></i> 停止 / 重置';
+            timerBtn.disabled = false;
+            
+            runTimer(seconds, () => {
+                playWhistle();
+                startDrawingPhase();
+            });
+        }
+
+        function startDrawingPhase() {
+            timerPhase = 'draw';
+            let duration = drawingDuration;
+
+            timerWrapper.classList.remove('timer-prep');
+            timerWrapper.classList.add('timer-draw');
+            
+            timerHint.innerHTML = '<i class="fas fa-pencil-alt"></i> 請開始作畫！';
+            
+            runTimer(duration, () => {
+                playTimeUpSound();
+                timerDisplay.innerHTML = '<i class="fas fa-times"></i> 時間到';
+                timerPhase = 'idle';
+                
+                timerBtn.innerHTML = '<i class="fas fa-redo"></i> 接力 / 重新計時';
+                timerBtn.classList.add('btn-blue');
+            });
+        }
+
+        function runTimer(seconds, onComplete) {
+            clearInterval(timerInterval);
+            let timeLeft = seconds;
+            timerDisplay.innerHTML = timeLeft;
+
             timerInterval = setInterval(() => {
                 timeLeft--;
-                timerDisplay.innerHTML = '<i class="fas fa-clock"></i> ' + timeLeft;
+                timerDisplay.innerHTML = timeLeft;
 
-                if (timeLeft <= 5 && timeLeft > 0) {
+                if (timerPhase === 'draw' && timeLeft <= 5 && timeLeft > 0) {
                     timerDisplay.classList.add('timer-warning');
                     let pitch = 880 + (5 - timeLeft) * 50; 
                     playBeep(pitch, 0.15, 'square', 0.5); 
-                } else if (timeLeft === 0) {
-                    // ★ 震耳欲聾警報 (2秒)
-                    playTimeUpSound();
-                    
-                    timerDisplay.innerHTML = '<i class="fas fa-times-circle"></i> 時間到';
-                    stopTimer();
-                    timerBtn.innerHTML = '<i class="fas fa-redo"></i> 重新計時';
-                    timerBtn.disabled = false; 
-                    timerBtn.classList.add('btn-blue');
-                    timerBtn.style.background = ""; 
+                }
+
+                if (timeLeft < 0) {
+                    clearInterval(timerInterval);
+                    if (onComplete) onComplete();
                 }
             }, 1000);
         }
 
-        function stopTimer() { 
-            clearInterval(timerInterval); 
-            timerInterval = null; 
-            timerDisplay.classList.remove('timer-warning'); 
-            if(!timerBtn.disabled) {
-                timerBtn.innerHTML = '<i class="fas fa-stopwatch"></i> 開始計時';
-                timerBtn.classList.add('btn-blue');
-                timerBtn.style.background = ""; 
+        function stopTimer(fullReset = false) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            timerDisplay.classList.remove('timer-warning');
+            
+            if (fullReset) {
+                timerPhase = 'idle';
+                return;
             }
+
+            timerPhase = 'idle';
+            timerWrapper.classList.remove('timer-prep');
+            timerWrapper.classList.add('timer-draw'); 
+            timerHint.innerText = "準備作畫";
+            timerDisplay.innerHTML = drawingDuration; 
+            
+            timerBtn.innerHTML = '<i class="fas fa-play"></i> 開始計時';
+            timerBtn.classList.add('btn-blue');
         }
 
-        // 一般嗶聲
-        function playBeep(frequency, duration, type = 'sine', volume = 1.0) {
+        function playBeep(f, d, t='sine', v=1.0) {
             if (!audioContext) return;
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
-            oscillator.type = type;
-            oscillator.frequency.value = frequency;
-            gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
-            oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-            oscillator.start();
-            oscillator.stop(audioContext.currentTime + duration);
+            const o = audioContext.createOscillator();
+            const g = audioContext.createGain();
+            o.type = t; o.frequency.value = f;
+            g.gain.setValueAtTime(v, audioContext.currentTime);
+            g.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + d);
+            o.connect(g); g.connect(audioContext.destination);
+            o.start(); o.stop(audioContext.currentTime + d);
         }
 
-        // ★ 震耳欲聾的專屬音效函式 (雙震盪器 + 不和諧音程)
+        function playWhistle() {
+            if (!audioContext) return;
+            const o = audioContext.createOscillator();
+            const g = audioContext.createGain();
+            o.frequency.setValueAtTime(800, audioContext.currentTime);
+            o.frequency.linearRampToValueAtTime(2000, audioContext.currentTime + 0.1); 
+            g.gain.setValueAtTime(0.5, audioContext.currentTime);
+            g.gain.linearRampToValueAtTime(0, audioContext.currentTime + 0.5);
+            o.connect(g); g.connect(audioContext.destination);
+            o.start(); o.stop(audioContext.currentTime + 0.5);
+        }
+
         function playTimeUpSound() {
             if (!audioContext) return;
             const osc1 = audioContext.createOscillator();
             const osc2 = audioContext.createOscillator();
             const gainNode = audioContext.createGain();
 
-            // 設定最刺耳的方形波
-            osc1.type = 'square';
-            osc2.type = 'square';
-
-            // 設定不和諧頻率 (製造嗡嗡聲)
-            osc1.frequency.value = 150; 
-            osc2.frequency.value = 155; // 差 5Hz 會產生強烈震動感
-
-            // 音量全開，不淡出
+            osc1.type = 'square'; osc2.type = 'square';
+            osc1.frequency.value = 150; osc2.frequency.value = 155; 
             gainNode.gain.setValueAtTime(1.0, audioContext.currentTime);
 
-            // 連接
-            osc1.connect(gainNode);
-            osc2.connect(gainNode);
+            osc1.connect(gainNode); osc2.connect(gainNode);
             gainNode.connect(audioContext.destination);
 
-            // 播放 2 秒
-            osc1.start();
-            osc2.start();
-            osc1.stop(audioContext.currentTime + 2);
-            osc2.stop(audioContext.currentTime + 2);
+            osc1.start(); osc2.start();
+            osc1.stop(audioContext.currentTime + 0.4);
+            osc2.stop(audioContext.currentTime + 0.2);
         }
 
         function toggleBGMSetup() { isBGMOn = !isBGMOn; updateSwitchUI('setup-bgm-switch', isBGMOn); updateSwitchUI('game-bgm-switch', isBGMOn); }
@@ -490,13 +540,9 @@
         
         function updateSwitchUI(id, isOn) { 
             const container = document.getElementById(id);
-            if (isOn) {
-                container.classList.add('active'); 
-            } else {
-                container.classList.remove('active');
-            }
+            if (isOn) container.classList.add('active'); 
+            else container.classList.remove('active');
         }
-        
         function shuffleArray(array) { for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [array[i], array[j]] = [array[j], array[i]]; } return array; }
 
         function resetHistory() {
