@@ -21,8 +21,6 @@
             --secondary-dark: #0abde3;
             --danger: #ff4757;
             --demo-color: #f1c40f; 
-            
-            /* BGM 開啟時的顏色 (亮藍色) */
             --switch-on-color: #007bff; 
         }
 
@@ -49,15 +47,14 @@
             overflow: hidden; 
         }
 
-        /* --- 標題樣式 --- */
         h1 {
             color: var(--text-main); font-weight: 900; font-size: 2.2rem; 
             margin: 10px 0 25px 0; letter-spacing: 1px;
             display: flex; align-items: center; justify-content: center; gap: 15px;
+            transition: margin-top 0.3s;
         }
         h1 i { color: var(--accent-color); font-size: 1.8rem; }
 
-        /* --- 右上角按鈕群組 (電腦版) --- */
         .top-btn-group {
             position: absolute; top: 20px; right: 20px;
             display: flex; gap: 10px; z-index: 100;
@@ -127,12 +124,11 @@
         .timer-warning { color: var(--danger); animation: pulse 0.5s infinite alternate; }
         @keyframes pulse { from { opacity: 1; } to { opacity: 0.6; } }
 
-        /* --- BGM Switch 樣式 --- */
         .switch-container { display: inline-flex; align-items: center; justify-content: center; margin-top: 15px; font-size: 0.9rem; font-weight: 500; color: #a4b0be; cursor: pointer; gap: 8px; }
         
         .toggle-box { 
             width: 40px; height: 22px; 
-            background: #dfe4ea; /* OFF 預設灰色 */
+            background: #dfe4ea; 
             border-radius: 20px; position: relative; transition: background 0.3s; 
         }
         .toggle-circle { 
@@ -142,7 +138,6 @@
             transition: transform 0.3s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); 
         }
         
-        /* ON 狀態 */
         .switch-container.active .toggle-box { background: var(--switch-on-color); }
         .switch-container.active .toggle-circle { transform: translateX(18px); }
 
@@ -155,22 +150,15 @@
         .guide-section { margin-bottom: 18px; line-height: 1.6; font-size: 1rem; color: #555; text-align: left;}
         .guide-section strong { color: var(--accent-color); }
 
-        /* --- RWD 手機版優化 --- */
         @media (max-width: 600px) {
             .variety-box { 
                 padding: 25px 20px; 
-                padding-top: 60px; /* 增加頂部留白，給按鈕群組用 */
+                padding-top: 60px; 
             }
             .top-btn-group {
-                position: absolute;
-                top: 15px;
-                right: 15px;
-                width: auto;
+                position: absolute; top: 15px; right: 15px; width: auto;
             }
-            h1 { 
-                font-size: 1.8rem; 
-                margin-top: 0;
-            }
+            h1 { font-size: 1.8rem; margin-top: 0; }
             #question-display { min-height: 180px; font-size: 3rem; } 
             .btn { font-size: 1.3rem; padding: 14px; }
         }
@@ -194,7 +182,6 @@
     </div>
 
     <div id="setup-screen" class="variety-box">
-        
         <div class="top-btn-group">
             <button class="circle-btn" id="demo-btn" onclick="startDemo()" title="試玩模式 (Demo)">
                 <i class="fas fa-gamepad"></i>
@@ -288,7 +275,6 @@
         let playedHistory = JSON.parse(localStorage.getItem('playedIdiomsHistory')) || [];
         let isDemoMode = false;
 
-        // --- DOM ---
         const setupScreen = document.getElementById('setup-screen');
         const gameScreen = document.getElementById('game-screen');
         const bgmPlayer = document.getElementById('bgm-player');
@@ -319,7 +305,6 @@
         function openGuide() { guideModal.style.display = 'flex'; }
         function closeGuide(event) { if (event === null || event.target === guideModal) guideModal.style.display = 'none'; }
 
-        // --- 試玩模式 ---
         function startDemo() {
             if(!confirm("【試玩模式說明】\n\n1. 此模式不會消耗正式題庫。\n2. 僅提供 2 題範例 (基礎/進階各一)。\n3. 每題時間固定為 8 秒，用於熟悉倒數音效。\n\n準備好要開始試玩了嗎？")) {
                 return;
@@ -338,7 +323,6 @@
             nextQuestion();
         }
 
-        // --- 1. 開始遊戲 ---
         function startGame() {
             const basicCount = parseInt(document.getElementById('basic-count').value) || 0;
             const advCount = parseInt(document.getElementById('adv-count').value) || 0;
@@ -370,7 +354,6 @@
             nextQuestion();
         }
 
-        // --- 2. 題目控制 ---
         function nextQuestion() {
             stopTimer();
             timerDisplay.innerHTML = '<i class="fas fa-clock"></i> ' + timerDuration;
@@ -415,7 +398,6 @@
             levelTag.style.color = q.color;
         }
 
-        // --- 3. 計時器與音效 (接力版修正：時間到不鎖定) ---
         function toggleTimer() {
             if (timerInterval) { stopTimer(); return; }
             let timeLeft = timerDuration;
@@ -434,14 +416,15 @@
                     let pitch = 880 + (5 - timeLeft) * 50; 
                     playBeep(pitch, 0.15, 'square', 0.5); 
                 } else if (timeLeft === 0) {
-                    playBeep(200, 1.5, 'sawtooth', 1.0); 
+                    // ★ 震耳欲聾警報 (2秒)
+                    playTimeUpSound();
+                    
                     timerDisplay.innerHTML = '<i class="fas fa-times-circle"></i> 時間到';
                     stopTimer();
-                    // ★ 關鍵修正：時間到後，重置按鈕為「重新計時」狀態，讓下一棒可按
                     timerBtn.innerHTML = '<i class="fas fa-redo"></i> 重新計時';
-                    timerBtn.disabled = false; // 保持啟用
-                    timerBtn.classList.add('btn-blue'); // 恢復藍色
-                    timerBtn.style.background = ""; // 清除灰色覆蓋
+                    timerBtn.disabled = false; 
+                    timerBtn.classList.add('btn-blue');
+                    timerBtn.style.background = ""; 
                 }
             }, 1000);
         }
@@ -450,8 +433,6 @@
             clearInterval(timerInterval); 
             timerInterval = null; 
             timerDisplay.classList.remove('timer-warning'); 
-            // 只有在非時間到（手動停止）的情況下，才需要手動重置按鈕文字
-            // 但因為 toggleTimer 的邏輯，這裡統一重置也無妨，重點是時間到時的邏輯
             if(!timerBtn.disabled) {
                 timerBtn.innerHTML = '<i class="fas fa-stopwatch"></i> 開始計時';
                 timerBtn.classList.add('btn-blue');
@@ -459,6 +440,7 @@
             }
         }
 
+        // 一般嗶聲
         function playBeep(frequency, duration, type = 'sine', volume = 1.0) {
             if (!audioContext) return;
             const oscillator = audioContext.createOscillator();
@@ -471,6 +453,36 @@
             gainNode.connect(audioContext.destination);
             oscillator.start();
             oscillator.stop(audioContext.currentTime + duration);
+        }
+
+        // ★ 震耳欲聾的專屬音效函式 (雙震盪器 + 不和諧音程)
+        function playTimeUpSound() {
+            if (!audioContext) return;
+            const osc1 = audioContext.createOscillator();
+            const osc2 = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            // 設定最刺耳的方形波
+            osc1.type = 'square';
+            osc2.type = 'square';
+
+            // 設定不和諧頻率 (製造嗡嗡聲)
+            osc1.frequency.value = 150; 
+            osc2.frequency.value = 155; // 差 5Hz 會產生強烈震動感
+
+            // 音量全開，不淡出
+            gainNode.gain.setValueAtTime(1.0, audioContext.currentTime);
+
+            // 連接
+            osc1.connect(gainNode);
+            osc2.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            // 播放 2 秒
+            osc1.start();
+            osc2.start();
+            osc1.stop(audioContext.currentTime + 2);
+            osc2.stop(audioContext.currentTime + 2);
         }
 
         function toggleBGMSetup() { isBGMOn = !isBGMOn; updateSwitchUI('setup-bgm-switch', isBGMOn); updateSwitchUI('game-bgm-switch', isBGMOn); }
