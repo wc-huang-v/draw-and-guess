@@ -22,8 +22,8 @@
             --danger: #ff4757;
             --demo-color: #f1c40f; 
             --switch-on-color: #007bff; 
-            --prep-color: #3498db; /* 構思期：藍色 */
-            --draw-color: #2ecc71; /* 作畫期：綠色 */
+            --prep-color: #3498db; 
+            --draw-color: #2ecc71; 
         }
 
         * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
@@ -46,7 +46,7 @@
             width: 100%; max-width: 600px;
             text-align: center; 
             border: 1px solid rgba(255,255,255,0.1);
-            overflow: hidden; 
+            overflow: hidden; /* 這是緞帶需要的，但也導致氣泡被切，所以氣泡位置要改 */
         }
 
         h1 {
@@ -70,7 +70,6 @@
         #demo-btn { color: #f39c12; }
         #demo-btn:hover { background: #f39c12; color: #fff; }
 
-        /* --- 試玩模式標籤 --- */
         .demo-ribbon {
             position: absolute; top: 35px; left: -45px; width: 180px;
             background: #ffeb3b; color: #d32f2f; font-weight: 900;
@@ -121,9 +120,14 @@
             display: flex; align-items: center; justify-content: center;
             color: #2f3542; background: #fff; border: 2px dashed #dfe4ea;
             border-radius: 20px; margin: 15px 0; padding: 10px; word-break: keep-all;
+            flex-direction: column; 
         }
 
-        .timer-container { margin: 10px auto; display: flex; flex-direction: column; align-items: center; }
+        .timer-container { 
+            margin: 10px auto; 
+            display: flex; flex-direction: column; align-items: center; 
+            position: relative; 
+        }
         
         .timer-box { 
             font-size: 2.8rem; font-weight: 700; padding: 5px 30px; 
@@ -142,6 +146,26 @@
 
         .timer-warning { color: var(--danger) !important; animation: pulse 0.5s infinite alternate; }
         @keyframes pulse { from { opacity: 1; } to { opacity: 0.6; } }
+
+        /* --- ★ 氣泡位置修正 (統一改在上方，避免被切掉) --- */
+        .go-popup {
+            position: absolute;
+            top: -50px; /* 往上移 */
+            left: 50%;  /* 置中 */
+            transform: translateX(-50%) scale(0); /* 初始狀態：置中且縮小 */
+            
+            background: #ff6b6b; color: #fff; padding: 10px 20px; border-radius: 50px;
+            font-size: 1.5rem; font-weight: 900; white-space: nowrap;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3); border: 3px solid #fff;
+            opacity: 0; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none; z-index: 10;
+        }
+        
+        /* 彈出狀態 */
+        .go-popup.show { 
+            transform: translateX(-50%) scale(1); /* 恢復原大小 */
+            opacity: 1; 
+        }
 
         .switch-container { display: inline-flex; align-items: center; justify-content: center; margin-top: 15px; font-size: 0.9rem; font-weight: 500; color: #a4b0be; cursor: pointer; gap: 8px; }
         .toggle-box { width: 40px; height: 22px; background: #dfe4ea; border-radius: 20px; position: relative; transition: background 0.3s; }
@@ -164,6 +188,7 @@
             h1 { font-size: 1.8rem; margin-top: 0; }
             #question-display { min-height: 180px; font-size: 3rem; } 
             .btn { font-size: 1.3rem; padding: 14px; }
+            /* 手機版與電腦版位置統一，這裡不需要再覆蓋 */
         }
     </style>
 </head>
@@ -175,11 +200,14 @@
         <div class="modal-box" onclick="event.stopPropagation()">
             <div class="modal-title"><i class="fas fa-book-open"></i> 遊戲規則</div>
             <div class="guide-section"><strong><i class="fas fa-eye"></i> 1. 構思與作畫</strong><br>
-                • <span style="color:#3498db">藍色構思期</span>：新題目 10秒 / 接力 5秒 (勿動筆)<br>
+                • <span style="color:#3498db">藍色構思期</span>：10秒 / 5秒 (勿動筆)<br>
                 • <span style="color:#2ecc71">綠色作畫期</span>：聽到哨音後開始作畫！
             </div>
-            <div class="guide-section"><strong><i class="fas fa-stopwatch"></i> 2. 自動流程</strong><br>按下「下一題」後，自動開始 10秒 倒數。</div>
-            <div class="guide-section"><strong><i class="fas fa-running"></i> 3. 接力玩法</strong><br>時間到後，按鈕會重置。下一棒按下按鈕，會先有 5秒 看畫時間，才開始計時。</div>
+            <div class="guide-section"><strong><i class="fas fa-eye-slash"></i> 2. 記憶挑戰</strong><br>
+                第一位作畫時，<strong>題目會隱藏</strong>，必須在構思期背下來！<br>接力時題目會正常顯示。
+            </div>
+            <div class="guide-section"><strong><i class="fas fa-stopwatch"></i> 3. 自動流程</strong><br>按下「下一題」後，自動開始 10秒 倒數。</div>
+            <div class="guide-section"><strong><i class="fas fa-running"></i> 4. 接力玩法</strong><br>時間到後，按鈕會重置。下一棒按下按鈕，會先有 5秒 看畫時間，才開始計時。</div>
             <button class="btn" onclick="closeGuide(null)" style="margin-top:10px;">
                 <i class="fas fa-check"></i> 我知道了
             </button>
@@ -237,6 +265,7 @@
         <div id="question-display">準備中...</div>
         
         <div id="timer-wrapper" class="timer-container">
+            <div id="go-popup" class="go-popup"><i class="fas fa-paint-brush"></i> GO!</div>
             <div id="timer-hint" class="timer-hint">準備開始</div>
             <div class="timer-box" id="timer-display">--</div>
         </div>
@@ -269,6 +298,7 @@
         let playedHistory = JSON.parse(localStorage.getItem('playedIdiomsHistory')) || [];
         let isDemoMode = false;
         let timerPhase = 'idle'; 
+        let currentPrepDuration = 5;
 
         const setupScreen = document.getElementById('setup-screen');
         const gameScreen = document.getElementById('game-screen');
@@ -285,6 +315,7 @@
         const basicRemainLabel = document.getElementById('basic-remain');
         const advRemainLabel = document.getElementById('adv-remain');
         const demoRibbon = document.getElementById('demo-ribbon');
+        const goPopup = document.getElementById('go-popup');
 
         if (typeof db_basic === 'undefined' || typeof db_advanced === 'undefined') {
             alert("⚠️ 錯誤：找不到題庫檔案 questions.js！");
@@ -349,9 +380,27 @@
             nextQuestion();
         }
 
+        function updateQuestionText(forceHide = false) {
+            if (currentIndex < 0 || currentIndex >= gameQueue.length) return;
+            const text = gameQueue[currentIndex].text;
+            
+            if (forceHide) {
+                questionDisplay.innerHTML = '<span style="color:#ccc; font-size:2rem; line-height:1.5;">🙈 題目隱藏中<br><span style="font-size:1.2rem">(請憑記憶作畫)</span></span>';
+                questionDisplay.style.border = "2px dashed #ccc";
+            } else {
+                questionDisplay.innerText = text;
+                questionDisplay.style.border = "2px dashed #dfe4ea";
+                const isMobile = window.innerWidth < 600;
+                if (text.length > 5) {
+                    questionDisplay.style.fontSize = isMobile ? "2.5rem" : "3.5rem";
+                } else {
+                    questionDisplay.style.fontSize = isMobile ? "3.5rem" : "5rem";
+                }
+            }
+        }
+
         function nextQuestion() {
             stopTimer(true); 
-            
             currentIndex++;
 
             if (currentIndex >= gameQueue.length) {
@@ -370,25 +419,19 @@
             }
 
             const q = gameQueue[currentIndex];
-            questionDisplay.innerText = q.text;
+            
+            updateQuestionText(false);
 
             if (!isDemoMode) {
                 playedHistory.push(q.text);
                 localStorage.setItem('playedIdiomsHistory', JSON.stringify(playedHistory));
             }
             
-            const isMobile = window.innerWidth < 600;
-            if (q.text.length > 5) {
-                questionDisplay.style.fontSize = isMobile ? "2.5rem" : "3.5rem";
-            } else {
-                questionDisplay.style.fontSize = isMobile ? "3.5rem" : "5rem";
-            }
-
             progressText.innerText = `${currentIndex + 1} / ${gameQueue.length}`;
             levelTag.innerHTML = `<i class="fas fa-tag"></i> ${q.type}`;
             levelTag.style.color = q.color;
 
-            // ★ 自動流程：新題目 10秒
+            currentPrepDuration = 10;
             startPrepPhase(10);
         }
 
@@ -397,13 +440,14 @@
                 stopTimer();
                 return;
             }
-            // ★ 接力流程：接力構思 5秒
+            currentPrepDuration = 5;
             startPrepPhase(5);
         }
 
         function startPrepPhase(seconds) {
             timerPhase = 'prep';
-            
+            updateQuestionText(false);
+
             timerWrapper.classList.remove('timer-draw');
             timerWrapper.classList.add('timer-prep');
             timerDisplay.classList.remove('timer-warning');
@@ -422,6 +466,15 @@
 
         function startDrawingPhase() {
             timerPhase = 'draw';
+            
+            if (currentPrepDuration === 10) {
+                updateQuestionText(true); 
+            } else {
+                updateQuestionText(false); 
+            }
+
+            currentPrepDuration = 5; 
+
             let duration = drawingDuration;
 
             timerWrapper.classList.remove('timer-prep');
@@ -429,8 +482,13 @@
             
             timerHint.innerHTML = '<i class="fas fa-pencil-alt"></i> 請開始作畫！';
             
+            goPopup.classList.add('show');
+            setTimeout(() => { goPopup.classList.remove('show'); }, 1500); 
+
             runTimer(duration, () => {
                 playTimeUpSound();
+                updateQuestionText(false);
+                
                 timerDisplay.innerHTML = '<i class="fas fa-times"></i> 時間到';
                 timerPhase = 'idle';
                 
@@ -466,19 +524,22 @@
             timerInterval = null;
             timerDisplay.classList.remove('timer-warning');
             
+            goPopup.classList.remove('show');
+            updateQuestionText(false);
+
             if (fullReset) {
                 timerPhase = 'idle';
                 return;
             }
 
-            // ★ 修正：停止時，回歸到「準備接力 (5秒)」的狀態，而不是作畫時間
-            // 這樣使用者按下「開始」就會進入 5秒 看畫 -> 20秒 作畫 的正確流程
             timerPhase = 'idle';
             timerWrapper.classList.remove('timer-draw');
-            timerWrapper.classList.add('timer-prep'); // 藍色
+            timerWrapper.classList.add('timer-prep'); 
             
-            timerHint.innerHTML = '<i class="fas fa-brain"></i> 準備接力 (看畫)';
-            timerDisplay.innerHTML = 5; 
+            let hintText = (currentPrepDuration === 10) ? "準備開始 (新題目)" : "準備接力 (看畫)";
+            timerHint.innerHTML = `<i class="fas fa-brain"></i> ${hintText}`;
+            
+            timerDisplay.innerHTML = currentPrepDuration; 
             
             timerBtn.innerHTML = '<i class="fas fa-play"></i> 開始計時';
             timerBtn.classList.add('btn-blue');
