@@ -3,25 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>綜藝大挑戰 - 題目產生器</title>
-    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;800&display=swap" rel="stylesheet">
+    <title>你畫我猜成語版 - 題目產生器</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@700;900&display=swap" rel="stylesheet">
+    
+    <script src="questions.js"></script>
+
     <style>
         :root {
-            --main-bg: linear-gradient(135deg, #ff00cc, #3333ff);
-            --box-bg: rgba(255, 255, 255, 0.95);
+            --main-bg: radial-gradient(circle at center, #2b32b2, #141e30);
+            --box-bg: #fff;
             --text-color: #333;
-            --highlight-pink: #ff0099;
+            --highlight-orange: #ff6600;
             --highlight-yellow: #ffcc00;
-            --highlight-blue: #0066ff;
-            --danger: #ff3300;
+            --highlight-blue: #0044cc;
+            --highlight-green: #00cc66;
+            --danger: #cc0000;
+            --hint-color: #7f8c8d; /* 淺色小字顏色 */
         }
 
         * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
 
         body {
-            font-family: 'M PLUS Rounded 1c', sans-serif;
+            font-family: 'Noto Sans TC', sans-serif;
             background: var(--main-bg);
-            background-image: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.2) 0%, transparent 20%), radial-gradient(circle at 80% 80%, rgba(255,255,255,0.2) 0%, transparent 20%);
             background-size: 100% 100%;
             color: var(--text-color);
             display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -29,76 +33,90 @@
         }
 
         .variety-box {
-            background: var(--box-bg); border-radius: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3), 0 0 0 5px #fff, 0 0 0 10px var(--highlight-pink), 0 0 20px var(--highlight-pink);
-            padding: 25px; position: relative; margin-bottom: 20px;
-            width: 100%; max-width: 650px; /* 稍微加大寬度給大字體 */
-            text-align: center; border: 3px solid var(--highlight-blue);
+            background: var(--box-bg); 
+            border-radius: 20px;
+            border: 5px solid var(--highlight-blue);
+            box-shadow: 0 0 0 5px #fff inset, 0 10px 30px rgba(0,0,0,0.5), 0 0 20px var(--highlight-orange);
+            padding: 25px; 
+            position: relative; margin-bottom: 20px;
+            width: 100%; max-width: 650px;
+            text-align: center; 
         }
 
         h1 {
-            color: var(--highlight-blue); font-weight: 800; font-size: 2.2rem; margin-top: 0;
-            text-shadow: 2px 2px 0 #fff, 4px 4px 0 var(--highlight-pink); letter-spacing: 1px;
+            color: var(--highlight-blue); font-weight: 900; font-size: 2.5rem; margin-top: 0;
+            text-shadow: 3px 3px 0 #fff, 5px 5px 0 var(--highlight-yellow); letter-spacing: 2px;
         }
 
-        .setting-group { margin-bottom: 15px; font-size: 1.2rem; font-weight: 800; color: var(--highlight-pink); }
-        input[type="number"] { width: 100%; border: 3px solid var(--highlight-yellow); border-radius: 15px; padding: 12px; font-size: 1.4rem; font-weight: 800; text-align: center; }
+        .setting-group { margin-bottom: 20px; font-size: 1.3rem; font-weight: 900; color: var(--highlight-orange); text-align: left; padding: 0 20px; }
+        
+        /* 淺色小字樣式 */
+        .remain-hint {
+            font-size: 0.9rem;
+            color: var(--hint-color);
+            font-weight: 500;
+            margin-top: 5px;
+            display: block;
+        }
+
+        input[type="number"] { 
+            width: 100%; border: 4px solid var(--highlight-blue); border-radius: 15px; padding: 10px; font-size: 1.5rem; font-weight: 900; text-align: center; color: var(--highlight-blue); background: #f0f8ff;
+        }
 
         .btn {
-            background: linear-gradient(to bottom, var(--highlight-yellow), #ffaa00); color: #fff; border: none; border-radius: 50px; padding: 15px 30px; font-size: 1.5rem; font-weight: 800; cursor: pointer; width: 100%; margin-top: 15px;
-            box-shadow: 0 5px 0 #cc8800, 0 8px 15px rgba(0,0,0,0.3), inset 0 -2px 5px rgba(0,0,0,0.2); text-shadow: 1px 1px 2px rgba(0,0,0,0.5); transition: all 0.1s;
+            background: linear-gradient(to bottom, var(--highlight-yellow), var(--highlight-orange)); 
+            color: #fff; border: none; border-radius: 50px; padding: 15px 30px; 
+            font-size: 1.6rem; font-weight: 900; cursor: pointer; width: 100%; margin-top: 15px;
+            box-shadow: 0 6px 0 #cc5200, 0 10px 20px rgba(0,0,0,0.4); 
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3); transition: all 0.1s;
         }
-        .btn:active { transform: translateY(4px); box-shadow: 0 1px 0 #cc8800, inset 0 2px 5px rgba(0,0,0,0.2); }
-        .btn:disabled { background: #ccc; box-shadow: none; color: #666; cursor: not-allowed; transform: none; }
+        .btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #cc5200; }
+        .btn:disabled { background: #bdc3c7; box-shadow: none; color: #7f8c8d; cursor: not-allowed; transform: none; }
+
+        .btn-quit { background: #e0e0e0; color: #555; box-shadow: 0 4px 0 #999; font-size: 1.2rem; padding: 10px; margin-top: 10px; }
+        .btn-quit:active { transform: translateY(4px); box-shadow: 0 1px 0 #999; }
 
         #game-screen { display: none; }
 
         .status-bar {
-            display: flex; justify-content: space-between; margin-bottom: 15px; font-size: 1.1rem; font-weight: 800; color: var(--highlight-blue); background: rgba(255,255,255,0.8); padding: 5px 15px; border-radius: 20px;
+            display: flex; justify-content: space-between; margin-bottom: 15px; 
+            font-size: 1.2rem; font-weight: 900; color: #fff; background: var(--highlight-blue); 
+            padding: 8px 20px; border-radius: 50px; box-shadow: 0 4px 0 rgba(0,0,0,0.2);
         }
 
-        /* --- 題目顯示區域 (加大版) --- */
         #question-display {
-            /* 預設超大字體 */
-            font-size: 5rem;
-            font-weight: 800;
-            min-height: 250px; /* 增加高度容納大字 */
+            font-size: 5rem; font-weight: 900; min-height: 250px;
             display: flex; align-items: center; justify-content: center;
-            color: #fff;
-            -webkit-text-stroke: 3px var(--highlight-blue); /* 加粗描邊 */
-            text-shadow: 4px 4px 0 var(--highlight-pink), 8px 8px 0 var(--highlight-yellow);
-            line-height: 1.1;
-            background: rgba(0,0,0,0.05);
-            border-radius: 20px; margin: 15px 0; padding: 10px;
-            word-break: keep-all; /* 防止單字中間換行 */
+            color: var(--highlight-blue); background: #fffbe6;
+            border: 4px dashed var(--highlight-orange); border-radius: 20px; margin: 15px 0; padding: 10px;
+            word-break: keep-all;
         }
 
-        .timer-box { font-size: 2.5rem; font-weight: 800; margin: 15px auto; padding: 10px 30px; background: #fff; border: 4px solid var(--highlight-blue); border-radius: 50px; color: var(--highlight-blue); display: inline-block; }
+        .timer-box { 
+            font-size: 3rem; font-weight: 900; margin: 10px auto; padding: 5px 30px; 
+            background: #fff; border: 4px solid var(--highlight-blue); border-radius: 50px; color: var(--highlight-blue); 
+            display: inline-block; 
+        }
         .timer-warning { color: var(--danger); border-color: var(--danger); background: #fff0f0; animation: pulse 0.5s infinite alternate; }
         @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.05); } }
 
-        .switch-container { display: inline-flex; align-items: center; justify-content: center; margin-top: 20px; font-size: 1rem; font-weight: 800; color: var(--highlight-pink); cursor: pointer; background: rgba(255,255,255,0.6); padding: 5px 15px; border-radius: 30px; }
-        .toggle-box { width: 24px; height: 24px; background: #fff; border: 3px solid var(--highlight-pink); border-radius: 50%; margin-right: 10px; display: flex; align-items: center; justify-content: center; }
-        .toggle-check { width: 14px; height: 14px; background: var(--highlight-pink); border-radius: 50%; display: none; }
+        .switch-container { display: inline-flex; align-items: center; justify-content: center; margin-top: 20px; font-size: 1rem; font-weight: 900; color: #fff; cursor: pointer; background: rgba(0,0,0,0.3); padding: 8px 20px; border-radius: 30px; }
+        .toggle-box { width: 24px; height: 24px; background: #fff; border: 3px solid var(--highlight-orange); border-radius: 50%; margin-right: 10px; display: flex; align-items: center; justify-content: center; }
+        .toggle-check { width: 14px; height: 14px; background: var(--highlight-orange); border-radius: 50%; display: none; }
         .active .toggle-check { display: block; }
 
-        .reload-link { margin-top: 25px; font-size: 1rem; color: var(--danger); cursor:pointer; text-decoration: underline; font-weight: 800; padding: 10px; background: rgba(255,255,255,0.5); border-radius: 10px;}
+        .reload-link { margin-top: 25px; font-size: 1rem; color: #aaa; cursor:pointer; text-decoration: underline; font-weight: 700; padding: 10px; }
 
-        #guide-btn { position: fixed; top: 15px; right: 15px; z-index: 1000; background: var(--highlight-blue); color: #fff; border: none; border-radius: 30px; padding: 10px 20px; font-weight: 800; cursor: pointer; box-shadow: 0 4px 0 #0044cc; }
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 20px; }
-        .modal-box { background: #fff; border: 5px solid var(--highlight-pink); border-radius: 30px; padding: 25px; width: 100%; max-width: 500px; max-height: 85vh; overflow-y: auto; }
-        .modal-title { color: var(--highlight-pink); text-align: center; font-size: 1.8rem; font-weight: 800; margin-bottom: 20px; border-bottom: 3px dashed var(--highlight-yellow); padding-bottom: 10px; }
-        .guide-section { margin-bottom: 15px; line-height: 1.5; font-size: 1.1rem; }
-        .guide-section strong { color: var(--highlight-blue); }
+        #guide-btn { position: fixed; top: 15px; right: 15px; z-index: 1000; background: var(--highlight-green); color: #fff; border: none; border-radius: 30px; padding: 10px 20px; font-weight: 900; cursor: pointer; box-shadow: 0 4px 0 #008f47; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 20px; }
+        .modal-box { background: #fff; border: 5px solid var(--highlight-blue); border-radius: 30px; padding: 25px; width: 100%; max-width: 500px; max-height: 85vh; overflow-y: auto; }
+        .modal-title { color: var(--highlight-blue); text-align: center; font-size: 1.8rem; font-weight: 900; margin-bottom: 20px; border-bottom: 3px dashed var(--highlight-orange); padding-bottom: 10px; }
+        .guide-section { margin-bottom: 15px; line-height: 1.6; font-size: 1.1rem; color: #333; }
+        .guide-section strong { color: var(--highlight-orange); }
 
-        /* --- RWD 響應式調整 (針對手機平板) --- */
         @media (max-width: 600px) {
-            .variety-box { padding: 20px 15px; }
-            h1 { font-size: 1.8rem; }
-            /* 手機版字體稍微縮小一點點，以免撐破畫面，但還是很大 */
-            #question-display { min-height: 200px; font-size: 3.5rem; -webkit-text-stroke: 2px var(--highlight-blue); }
-            .btn { font-size: 1.3rem; padding: 12px; }
-            .timer-box { font-size: 2rem; padding: 8px 25px; }
+            .variety-box { padding: 20px 15px; } h1 { font-size: 2rem; }
+            #question-display { min-height: 200px; font-size: 3.5rem; } .btn { font-size: 1.4rem; padding: 12px; }
         }
     </style>
 </head>
@@ -106,43 +124,37 @@
 
     <audio id="bgm-player" loop><source src="bg-music.mp3" type="audio/mpeg"></audio>
 
-    <button id="guide-btn" onclick="openGuide()">📜 遊戲規則</button>
+    <button id="guide-btn" onclick="openGuide()">📜 規則說明</button>
 
     <div id="guide-modal" class="modal-overlay" onclick="closeGuide(event)">
         <div class="modal-box" onclick="event.stopPropagation()">
-            <div class="modal-title">🔥 綜藝大挑戰規則 🔥</div>
-            <div class="guide-section">
-                <strong>1. 設定關卡 (先基礎後進階)</strong><br>輸入題目數量，挑戰會依序進行。
-            </div>
-            <div class="guide-section">
-                <strong>🌟 2. 同裝置不重複出題</strong><br>系統會記住這台手機/電腦玩過的題目。重新整理或下次再開，都不會出現重複的！直到題目用光為止。
-            </div>
-            <div class="guide-section">
-                <strong>3. 限時挑戰</strong><br>最後 5 秒有緊張音效提示，時間到就輸了！
-            </div>
-            <div class="guide-section">
-                <strong>4. 清除紀錄</strong><br>若要徹底重置題庫，請點擊畫面最下方的紅色「清除所有遊玩紀錄」。
-            </div>
-            <button class="btn close-btn" onclick="closeGuide(null)" style="margin-top:20px;">我知道了！</button>
+            <div class="modal-title">🎨 你畫我猜成語版</div>
+            <div class="guide-section"><strong>1. 設定關卡</strong><br>「基礎題」多為具象成語；「進階題」為抽象挑戰。</div>
+            <div class="guide-section"><strong>🌟 2. 智慧記憶</strong><br>系統會自動顯示還剩多少題沒玩過，並過濾已玩題目。</div>
+            <div class="guide-section"><strong>3. 操作密技</strong><br>上下鍵增減 10 秒。可隨時按「放棄」回設定頁。</div>
+            <div class="guide-section"><strong>4. 清除紀錄</strong><br>若題目玩完了，請點擊下方「清除紀錄」。</div>
+            <button class="btn close-btn" onclick="closeGuide(null)" style="margin-top:20px;">開始遊戲！</button>
         </div>
     </div>
 
     <div id="setup-screen" class="variety-box">
-        <h1>🚀 綜藝大挑戰設定</h1>
+        <h1>🎨 你畫我猜成語版</h1>
         
         <div class="setting-group">
-            <label>基礎題數量 (先出):</label>
+            <label>基礎題數 (簡單/具象):</label>
             <input type="number" id="basic-count" value="10" min="0">
+            <span id="basic-remain" class="remain-hint">載入中...</span>
         </div>
 
         <div class="setting-group">
-            <label>進階題數量 (後出):</label>
+            <label>進階題數 (抽象/困難):</label>
             <input type="number" id="adv-count" value="5" min="0">
+            <span id="adv-remain" class="remain-hint">載入中...</span>
         </div>
 
         <div class="setting-group">
             <label>倒數時間 (秒):</label>
-            <input type="number" id="timer-set" value="60" min="10">
+            <input type="number" id="timer-set" value="60" min="10" step="10">
         </div>
 
         <div class="switch-container" onclick="toggleBGMSetup()" id="setup-bgm-switch">
@@ -153,22 +165,22 @@
         <button class="btn" onclick="startGame()">🔥 開始挑戰！ 🔥</button>
         
         <div class="reload-link" onclick="resetHistory()">
-            🗑️ 清除所有遊玩紀錄 (重置題庫)
+            🗑️ 清除已玩紀錄 (重置題庫)
         </div>
     </div>
 
     <div id="game-screen" class="variety-box">
         <div class="status-bar">
             <span id="progress-text">第 1/15 題</span>
-            <span id="level-tag" style="color:var(--highlight-pink);">【基礎題】</span>
+            <span id="level-tag" style="color:#fff;">【基礎題】</span>
         </div>
 
         <div id="question-display">準備中...</div>
-
         <div class="timer-box" id="timer-display">--</div>
 
-        <button class="btn" id="timer-btn" onclick="toggleTimer()" style="background: linear-gradient(to bottom, #ff3399, #cc0066); box-shadow: 0 5px 0 #99004d;">⏱️ 開始計時</button>
-        <button class="btn" id="next-btn" onclick="nextQuestion()">👉 下一題挑戰</button>
+        <button class="btn" id="timer-btn" onclick="toggleTimer()" style="background: linear-gradient(to bottom, #00cc66, #008f47); box-shadow: 0 6px 0 #005c2e;">⏱️ 開始計時</button>
+        <button class="btn" id="next-btn" onclick="nextQuestion()">👉 下一題</button>
+        <button class="btn btn-quit" onclick="location.reload()">↩️ 放棄 / 回設定頁</button>
         
         <div style="margin-top: 15px;">
             <div class="switch-container" onclick="toggleBGMGame()" id="game-bgm-switch">
@@ -176,27 +188,19 @@
                 <span>BGM 開關</span>
             </div>
         </div>
-        
-        <div class="reload-link" onclick="resetHistory()">
-            🗑️ 清除所有遊玩紀錄 (重置題庫)
-        </div>
     </div>
 
     <script>
-        // --- 題庫資料 ---
-        const db_basic = ["珍珠奶茶", "臭豆腐", "鹹酥雞", "大腸包小腸", "滷肉飯", "雞排", "豬血糕", "地瓜球", "蚵仔煎", "小籠包", "牛肉麵", "芒果冰", "木瓜牛奶", "早餐店奶茶", "吃到飽", "迴轉壽司", "薑母鴨", "羊肉爐", "麻辣鍋", "鼎泰豐", "麥當勞", "肯德基", "必勝客", "丹丹漢堡", "永和豆漿", "熱炒店", "流水席", "辦桌", "鳳梨酥", "車輪餅", "追垃圾車", "騎機車", "戴安全帽", "兩段式左轉", "找停車位", "被開罰單", "拖吊車", "塞車", "捷運讓座", "博愛座", "悠遊卡", "YouBike", "夾娃娃機", "便利商店", "請支援收銀", "蝦皮店到店", "統一發票", "中獎", "刮刮樂", "威力彩", "倒垃圾", "等紅綠燈", "行人地獄", "三寶", "酒測", "叫外送", "UberEats", "薪水小偷", "慣老闆", "責任制", "加班費", "眼神死", "情緒勒索", "媽寶", "公主病", "渣男", "暈船", "邊緣人", "社畜", "躺平", "年終獎金", "尾牙", "居家辦公", "視訊會議", "已讀不回", "按讚分享", "網美景點", "修圖", "颱風假", "地震", "停電", "去拜拜", "收驚", "擲筊", "求籤", "安太歲", "搶頭香", "包紅包", "喝喜酒", "打麻將", "滑手機", "自拍", "挖鼻孔", "剪指甲", "刷牙洗臉", "上廁所沒紙", "洗澡唱歌", "量體溫", "做快篩", "打疫苗", "排隊", "插隊", "打架", "報警", "叫救護車", "看牙醫", "減肥", "伏地挺身", "仰臥起坐", "深蹲"];
-        const db_advanced = ["畫蛇添足", "對牛彈琴", "雞飛狗跳", "狐假虎威", "井底之蛙", "守株待兔", "亡羊補牢", "鶴立雞群", "盲人摸象", "魚目混珠", "指鹿為馬", "狼狽為奸", "狗急跳牆", "殺雞儆猴", "騎虎難下", "驚弓之鳥", "如魚得水", "龍飛鳳舞", "笨鳥先飛", "引狼入室", "打草驚蛇", "調虎離山", "葉公好龍", "雞鳴狗盜", "鳳毛麟角", "掩耳盜鈴", "拔苗助長", "刻舟求劍", "負荊請罪", "班門弄斧", "草船借箭", "懸梁刺股", "聞雞起舞", "鑿壁偷光", "東施效顰", "順手牽羊", "抱頭鼠竄", "張牙舞爪", "手舞足蹈", "擠眉弄眼", "怒髮衝冠", "垂頭喪氣", "目瞪口呆", "七竅生煙", "捧腹大笑", "哭笑不得", "面紅耳赤", "咬牙切齒", "愁眉苦臉", "眉開眼笑", "骨瘦如柴", "大腹便便", "頭破血流", "心如刀割", "汗如雨下", "熱鍋螞蟻", "呆若木雞", "口若懸河", "大吃一驚", "一箭雙鵰", "百步穿楊", "杯弓蛇影", "鐵樹開花", "鏡花水月", "門可羅雀", "高樓大廈", "車水馬龍", "水滴石穿", "曇花一現", "勢如破竹", "一刀兩斷", "支離破碎", "藕斷絲連", "錦上添花", "雪中送炭", "火上加油", "如履薄冰", "泰山壓頂", "一石二鳥", "畫餅充飢", "望梅止渴", "飛蛾撲火", "螳臂擋車", "緣木求魚", "甕中捉鱉", "自投羅網", "金蟬脫殼", "鳩佔鵲巢", "老馬識途", "三頭六臂", "異想天開", "想入非非", "心不在焉", "冥思苦想", "猶豫不決", "提心吊膽", "心花怒放", "惱羞成怒", "幸災樂禍", "杞人憂天", "剛愎自用", "優柔寡斷", "自作多情", "恍然大悟", "魂飛魄散", "不可思議", "莫名其妙", "喜出望外", "樂不思蜀", "歸心似箭", "雞同鴨講", "竊竊私語", "喋喋不休", "唇槍舌劍", "甜言蜜語", "搬弄是非", "眾口鑠金", "震耳欲聾", "鴉雀無聲", "異口同聲", "推三阻四", "勾心斗角", "爾虞我詐", "眾叛親離", "格格不入", "自相矛盾", "進退兩難", "本末倒置", "雪上加霜", "絕處逢生", "三個臭皮匠", "瞎貓碰上死耗子", "雞蛋裡挑骨頭", "薑是老的辣", "狗嘴吐不出象牙", "癩蛤蟆想吃天鵝肉", "此地無銀三百兩", "賠了夫人又折兵", "不見棺材不掉淚", "吃不到葡萄說葡萄酸", "留得青山在不怕沒柴燒", "一朝被蛇咬十年怕草繩", "偷雞不著蝕把米", "井水不犯河水", "五十步笑百步", "打破砂鍋問到底", "惡人先告狀", "人不可貌相", "八字還沒一撇", "天下沒有白吃的午餐"];
-
-        // --- 遊戲狀態 & 本地儲存 ---
+        // --- 遊戲狀態 ---
         let gameQueue = [];
         let currentIndex = -1;
         let timerDuration = 60;
         let timerInterval = null;
         let isBGMOn = true;
         let audioContext = null;
-        // 讀取已玩過的題目紀錄
-        let playedHistory = JSON.parse(localStorage.getItem('playedQuestionsHistory')) || [];
+        let playedHistory = JSON.parse(localStorage.getItem('playedIdiomsHistory')) || [];
 
+        // --- DOM ---
         const setupScreen = document.getElementById('setup-screen');
         const gameScreen = document.getElementById('game-screen');
         const bgmPlayer = document.getElementById('bgm-player');
@@ -207,11 +211,31 @@
         const timerBtn = document.getElementById('timer-btn');
         const nextBtn = document.getElementById('next-btn');
         const guideModal = document.getElementById('guide-modal');
+        const basicRemainLabel = document.getElementById('basic-remain');
+        const advRemainLabel = document.getElementById('adv-remain');
+
+        // --- 檢查題庫檔案是否載入 ---
+        if (typeof db_basic === 'undefined' || typeof db_advanced === 'undefined') {
+            alert("⚠️ 錯誤：找不到題庫檔案 questions.js！\n請確認 index.html 與 questions.js 放在同一個資料夾內。");
+        }
+
+        // --- 初始化：更新剩餘題數 ---
+        function updateRemainCounts() {
+            if (typeof db_basic === 'undefined') return;
+            const availableBasic = db_basic.filter(q => !playedHistory.includes(q));
+            const availableAdv = db_advanced.filter(q => !playedHistory.includes(q));
+            
+            basicRemainLabel.innerText = `(題庫尚有 ${availableBasic.length} 題未玩過)`;
+            advRemainLabel.innerText = `(題庫尚有 ${availableAdv.length} 題未玩過)`;
+        }
+        
+        // 頁面載入時執行一次
+        updateRemainCounts();
 
         function openGuide() { guideModal.style.display = 'flex'; }
         function closeGuide(event) { if (event === null || event.target === guideModal) guideModal.style.display = 'none'; }
 
-        // --- 1. 初始化與開始遊戲 ---
+        // --- 1. 開始遊戲 ---
         function startGame() {
             const basicCount = parseInt(document.getElementById('basic-count').value) || 0;
             const advCount = parseInt(document.getElementById('adv-count').value) || 0;
@@ -219,16 +243,16 @@
 
             if (basicCount + advCount === 0) { alert("請至少設定一題！"); return; }
 
-            // 【關鍵修改】過濾掉已經玩過的題目
+            // 過濾已玩過的
             const availableBasic = db_basic.filter(q => !playedHistory.includes(q));
             const availableAdv = db_advanced.filter(q => !playedHistory.includes(q));
 
             if (basicCount > availableBasic.length || advCount > availableAdv.length) {
-                alert(`題庫存量不足！(已自動過濾掉玩過的題目)\n\n基礎題剩餘: ${availableBasic.length}\n進階題剩餘: ${availableAdv.length}\n\n請減少設定數量，或按下方紅色按鈕清除紀錄。`);
+                alert(`題庫存量不足！\n\n基礎題剩: ${availableBasic.length}\n進階題剩: ${availableAdv.length}\n\n請減少設定數量。`);
                 return;
             }
 
-            const finalBasic = shuffleArray([...availableBasic]).slice(0, basicCount).map(t => ({text: t, type: '基礎題', color: 'var(--highlight-pink)'}));
+            const finalBasic = shuffleArray([...availableBasic]).slice(0, basicCount).map(t => ({text: t, type: '基礎題', color: 'var(--highlight-blue)'}));
             const finalAdv = shuffleArray([...availableAdv]).slice(0, advCount).map(t => ({text: t, type: '進階題', color: 'var(--danger)'}));
             
             gameQueue = [...finalBasic, ...finalAdv];
@@ -241,7 +265,7 @@
             nextQuestion();
         }
 
-        // --- 2. 題目控制 (含字體RWD調整與紀錄儲存) ---
+        // --- 2. 題目控制 ---
         function nextQuestion() {
             stopTimer();
             timerDisplay.innerText = timerDuration;
@@ -252,7 +276,7 @@
             currentIndex++;
 
             if (currentIndex >= gameQueue.length) {
-                questionDisplay.innerHTML = "<span style='color:var(--highlight-yellow); font-size: 3rem;'>🎉 本輪挑戰結束！🎉</span>";
+                questionDisplay.innerHTML = "<span style='font-size: 3rem; color:var(--highlight-orange)'>🎉 挑戰結束！🎉</span>";
                 progressText.innerText = "END"; levelTag.innerText = "";
                 nextBtn.innerText = "🔄 設定新一輪";
                 nextBtn.onclick = () => location.reload();
@@ -263,23 +287,21 @@
             const q = gameQueue[currentIndex];
             questionDisplay.innerText = q.text;
 
-            // 【關鍵修改】將題目加入歷史紀錄並存到 localStorage
+            // 存入紀錄
             playedHistory.push(q.text);
-            localStorage.setItem('playedQuestionsHistory', JSON.stringify(playedHistory));
+            localStorage.setItem('playedIdiomsHistory', JSON.stringify(playedHistory));
             
-            // 【關鍵修改】RWD 字體大小調整 (手機版與電腦版不同)
+            // RWD 字體
             const isMobile = window.innerWidth < 600;
-            if (q.text.length > 8) {
-                questionDisplay.style.fontSize = isMobile ? "2.8rem" : "4rem"; // 字多時縮小
-            } else if (q.text.length > 5) {
-                questionDisplay.style.fontSize = isMobile ? "3.5rem" : "5rem";
+            if (q.text.length > 5) {
+                questionDisplay.style.fontSize = isMobile ? "3rem" : "4.5rem";
             } else {
-                questionDisplay.style.fontSize = isMobile ? "4.5rem" : "6rem"; // 字少時超大
+                questionDisplay.style.fontSize = isMobile ? "4rem" : "6rem";
             }
 
             progressText.innerText = `第 ${currentIndex + 1}/${gameQueue.length} 題`;
             levelTag.innerText = `【${q.type}】`;
-            levelTag.style.color = q.color;
+            levelTag.style.backgroundColor = q.color === 'var(--danger)' ? 'var(--danger)' : 'var(--highlight-blue)';
         }
 
         // --- 3. 計時器與音效 ---
@@ -301,17 +323,15 @@
         function stopTimer() { clearInterval(timerInterval); timerInterval = null; timerDisplay.classList.remove('timer-warning'); }
         function playBeep(f, d) { if (!audioContext) return; const o = audioContext.createOscillator(); const g = audioContext.createGain(); o.type = 'sine'; o.frequency.value = f; o.connect(g); g.connect(audioContext.destination); o.start(); g.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + d); o.stop(audioContext.currentTime + d); }
 
-        // --- 4. 其他功能 ---
         function toggleBGMSetup() { isBGMOn = !isBGMOn; updateSwitchUI('setup-bgm-switch', isBGMOn); updateSwitchUI('game-bgm-switch', isBGMOn); }
         function toggleBGMGame() { isBGMOn = !isBGMOn; updateSwitchUI('setup-bgm-switch', isBGMOn); updateSwitchUI('game-bgm-switch', isBGMOn); if (isBGMOn) bgmPlayer.play(); else bgmPlayer.pause(); }
         function updateSwitchUI(id, isOn) { const el = document.getElementById(id).querySelector('.toggle-box'); if (isOn) el.classList.add('active'); else el.classList.remove('active'); }
         function shuffleArray(array) { for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [array[i], array[j]] = [array[j], array[i]]; } return array; }
 
-        // 【關鍵修改】清除歷史紀錄功能
         function resetHistory() {
-            if (confirm("【警告】\n確定要清除此裝置的所有遊玩紀錄嗎？\n\n清除後，題目可能會重複出現。")) {
-                localStorage.removeItem('playedQuestionsHistory');
-                alert("紀錄已清除！題庫已重置。");
+            if (confirm("【警告】\n確定要清除紀錄嗎？\n清除後，成語將會重新重複出現。")) {
+                localStorage.removeItem('playedIdiomsHistory');
+                alert("紀錄已清除！");
                 location.reload();
             }
         }
