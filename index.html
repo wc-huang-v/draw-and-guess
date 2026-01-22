@@ -18,7 +18,7 @@
             --highlight-blue: #0044cc;
             --highlight-green: #00cc66;
             --danger: #cc0000;
-            --hint-color: #7f8c8d; /* 淺色小字顏色 */
+            --hint-color: #7f8c8d;
         }
 
         * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
@@ -50,14 +50,7 @@
 
         .setting-group { margin-bottom: 20px; font-size: 1.3rem; font-weight: 900; color: var(--highlight-orange); text-align: left; padding: 0 20px; }
         
-        /* 淺色小字樣式 */
-        .remain-hint {
-            font-size: 0.9rem;
-            color: var(--hint-color);
-            font-weight: 500;
-            margin-top: 5px;
-            display: block;
-        }
+        .remain-hint { font-size: 0.9rem; color: var(--hint-color); font-weight: 500; margin-top: 5px; display: block; }
 
         input[type="number"] { 
             width: 100%; border: 4px solid var(--highlight-blue); border-radius: 15px; padding: 10px; font-size: 1.5rem; font-weight: 900; text-align: center; color: var(--highlight-blue); background: #f0f8ff;
@@ -73,8 +66,16 @@
         .btn:active { transform: translateY(4px); box-shadow: 0 2px 0 #cc5200; }
         .btn:disabled { background: #bdc3c7; box-shadow: none; color: #7f8c8d; cursor: not-allowed; transform: none; }
 
-        .btn-quit { background: #e0e0e0; color: #555; box-shadow: 0 4px 0 #999; font-size: 1.2rem; padding: 10px; margin-top: 10px; }
-        .btn-quit:active { transform: translateY(4px); box-shadow: 0 1px 0 #999; }
+        .btn-quit {
+            background: transparent;
+            color: #95a5a6;
+            border: none; box-shadow: none;
+            font-size: 0.9rem; font-weight: normal;
+            padding: 10px; margin-top: 30px;
+            text-decoration: underline; width: auto;
+            cursor: pointer; opacity: 0.6; transition: all 0.3s;
+        }
+        .btn-quit:hover { color: var(--danger); opacity: 1; }
 
         #game-screen { display: none; }
 
@@ -142,19 +143,19 @@
         
         <div class="setting-group">
             <label>基礎題數 (簡單/具象):</label>
-            <input type="number" id="basic-count" value="10" min="0">
+            <input type="number" id="basic-count" value="3" min="0">
             <span id="basic-remain" class="remain-hint">載入中...</span>
         </div>
 
         <div class="setting-group">
             <label>進階題數 (抽象/困難):</label>
-            <input type="number" id="adv-count" value="5" min="0">
+            <input type="number" id="adv-count" value="2" min="0">
             <span id="adv-remain" class="remain-hint">載入中...</span>
         </div>
 
         <div class="setting-group">
             <label>倒數時間 (秒):</label>
-            <input type="number" id="timer-set" value="60" min="10" step="10">
+            <input type="number" id="timer-set" value="20" min="10" step="10">
         </div>
 
         <div class="switch-container" onclick="toggleBGMSetup()" id="setup-bgm-switch">
@@ -180,7 +181,6 @@
 
         <button class="btn" id="timer-btn" onclick="toggleTimer()" style="background: linear-gradient(to bottom, #00cc66, #008f47); box-shadow: 0 6px 0 #005c2e;">⏱️ 開始計時</button>
         <button class="btn" id="next-btn" onclick="nextQuestion()">👉 下一題</button>
-        <button class="btn btn-quit" onclick="location.reload()">↩️ 放棄 / 回設定頁</button>
         
         <div style="margin-top: 15px;">
             <div class="switch-container" onclick="toggleBGMGame()" id="game-bgm-switch">
@@ -188,6 +188,8 @@
                 <span>BGM 開關</span>
             </div>
         </div>
+
+        <button class="btn-quit" onclick="confirmQuit()">[ 放棄本局 / 回到設定頁 ]</button>
     </div>
 
     <script>
@@ -219,17 +221,13 @@
             alert("⚠️ 錯誤：找不到題庫檔案 questions.js！\n請確認 index.html 與 questions.js 放在同一個資料夾內。");
         }
 
-        // --- 初始化：更新剩餘題數 ---
         function updateRemainCounts() {
             if (typeof db_basic === 'undefined') return;
             const availableBasic = db_basic.filter(q => !playedHistory.includes(q));
             const availableAdv = db_advanced.filter(q => !playedHistory.includes(q));
-            
             basicRemainLabel.innerText = `(題庫尚有 ${availableBasic.length} 題未玩過)`;
             advRemainLabel.innerText = `(題庫尚有 ${availableAdv.length} 題未玩過)`;
         }
-        
-        // 頁面載入時執行一次
         updateRemainCounts();
 
         function openGuide() { guideModal.style.display = 'flex'; }
@@ -239,11 +237,10 @@
         function startGame() {
             const basicCount = parseInt(document.getElementById('basic-count').value) || 0;
             const advCount = parseInt(document.getElementById('adv-count').value) || 0;
-            timerDuration = parseInt(document.getElementById('timer-set').value) || 60;
+            timerDuration = parseInt(document.getElementById('timer-set').value) || 20;
 
             if (basicCount + advCount === 0) { alert("請至少設定一題！"); return; }
 
-            // 過濾已玩過的
             const availableBasic = db_basic.filter(q => !playedHistory.includes(q));
             const availableAdv = db_advanced.filter(q => !playedHistory.includes(q));
 
@@ -287,11 +284,9 @@
             const q = gameQueue[currentIndex];
             questionDisplay.innerText = q.text;
 
-            // 存入紀錄
             playedHistory.push(q.text);
             localStorage.setItem('playedIdiomsHistory', JSON.stringify(playedHistory));
             
-            // RWD 字體
             const isMobile = window.innerWidth < 600;
             if (q.text.length > 5) {
                 questionDisplay.style.fontSize = isMobile ? "3rem" : "4.5rem";
@@ -304,24 +299,55 @@
             levelTag.style.backgroundColor = q.color === 'var(--danger)' ? 'var(--danger)' : 'var(--highlight-blue)';
         }
 
-        // --- 3. 計時器與音效 ---
+        // --- 3. 計時器與音效 (強化版) ---
         function toggleTimer() {
             if (timerInterval) { stopTimer(); return; }
             let timeLeft = timerDuration;
             timerDisplay.innerText = timeLeft;
             timerBtn.innerText = "⏹️ 停止計時";
+            
             timerInterval = setInterval(() => {
                 timeLeft--;
                 timerDisplay.innerText = timeLeft;
+
                 if (timeLeft <= 5 && timeLeft > 0) {
-                    timerDisplay.classList.add('timer-warning'); playBeep(600, 0.1);
+                    timerDisplay.classList.add('timer-warning');
+                    // ★ 聲音修改：頻率隨時間升高 (880Hz -> 1080Hz)，使用方形波，音量加大
+                    let pitch = 880 + (5 - timeLeft) * 50; 
+                    playBeep(pitch, 0.15, 'square', 0.5); 
                 } else if (timeLeft === 0) {
-                    playBeep(300, 0.8); timerDisplay.innerText = "時間到！❌"; stopTimer(); timerBtn.innerText = "⏱️ 開始計時"; timerBtn.disabled = true;
+                    // ★ 聲音修改：低音鋸齒波 (Buzzer)，音量最大，持續 1.5 秒
+                    playBeep(200, 1.5, 'sawtooth', 1.0); 
+                    timerDisplay.innerText = "時間到！❌";
+                    stopTimer();
+                    timerBtn.innerText = "⏱️ 開始計時";
+                    timerBtn.disabled = true;
                 }
             }, 1000);
         }
+
         function stopTimer() { clearInterval(timerInterval); timerInterval = null; timerDisplay.classList.remove('timer-warning'); }
-        function playBeep(f, d) { if (!audioContext) return; const o = audioContext.createOscillator(); const g = audioContext.createGain(); o.type = 'sine'; o.frequency.value = f; o.connect(g); g.connect(audioContext.destination); o.start(); g.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + d); o.stop(audioContext.currentTime + d); }
+
+        // ★ 音效產生器核心 (新增 type 和 vol 參數)
+        function playBeep(frequency, duration, type = 'sine', volume = 1.0) {
+            if (!audioContext) return;
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.type = type; // square, sawtooth, triangle, sine
+            oscillator.frequency.value = frequency;
+
+            // 設定音量
+            gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
+            // 稍微淡出避免爆音
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            oscillator.start();
+            oscillator.stop(audioContext.currentTime + duration);
+        }
 
         function toggleBGMSetup() { isBGMOn = !isBGMOn; updateSwitchUI('setup-bgm-switch', isBGMOn); updateSwitchUI('game-bgm-switch', isBGMOn); }
         function toggleBGMGame() { isBGMOn = !isBGMOn; updateSwitchUI('setup-bgm-switch', isBGMOn); updateSwitchUI('game-bgm-switch', isBGMOn); if (isBGMOn) bgmPlayer.play(); else bgmPlayer.pause(); }
@@ -332,6 +358,12 @@
             if (confirm("【警告】\n確定要清除紀錄嗎？\n清除後，成語將會重新重複出現。")) {
                 localStorage.removeItem('playedIdiomsHistory');
                 alert("紀錄已清除！");
+                location.reload();
+            }
+        }
+
+        function confirmQuit() {
+            if (confirm("遊戲正在進行中，確定要放棄並回到設定頁嗎？")) {
                 location.reload();
             }
         }
