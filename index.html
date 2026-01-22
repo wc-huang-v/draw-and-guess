@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>勇者鬥惡龍風 - 題目生成器</title>
+    <link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #000000;
+            --border-color: #ffffff;
+            --text-color: #ffffff;
+            --highlight: #f1c40f; /* 金幣色 */
+            --danger: #e74c3c;
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'DotGothic16', 'Microsoft JhengHei', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        /* --- DQ 風格視窗 --- */
+        .dq-box {
+            border: 4px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            background-color: #000;
+            position: relative;
+            box-shadow: 0 0 0 2px #000, 0 0 0 6px var(--border-color);
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        h1 {
+            color: var(--highlight);
+            text-align: center;
+            margin-top: 0;
+            text-shadow: 2px 2px #e67e22;
+        }
+
+        /* --- 設定頁面 --- */
+        .setting-group {
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            background: #000;
+            color: #fff;
+            border: 2px solid #fff;
+            padding: 10px;
+            font-family: inherit;
+            font-size: 1.2rem;
+            text-align: center;
+        }
+
+        /* --- 按鈕樣式 --- */
+        .btn {
+            background: #000;
+            color: #fff;
+            border: 2px solid #fff;
+            padding: 15px 30px;
+            font-family: inherit;
+            font-size: 1.3rem;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            transition: all 0.1s;
+            position: relative;
+        }
+
+        .btn:hover {
+            background: #222;
+            color: var(--highlight);
+        }
+
+        .btn:active {
+            transform: translate(2px, 2px);
+        }
+
+        .btn::before {
+            content: "▶";
+            position: absolute;
+            left: 15px;
+            opacity: 0;
+            transition: opacity 0.1s;
+        }
+        .btn:hover::before { opacity: 1; }
+
+        /* --- 遊戲頁面 (預設隱藏) --- */
+        #game-screen {
+            display: none;
+            text-align: center;
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            font-size: 1rem;
+            color: #bdc3c7;
+        }
+
+        #question-display {
+            font-size: 3rem;
+            min-height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--highlight);
+            text-shadow: 3px 3px #c0392b;
+            line-height: 1.2;
+        }
+
+        .timer-box {
+            font-size: 2rem;
+            margin: 15px 0;
+            padding: 10px;
+            border: 2px dashed #555;
+        }
+
+        .timer-warning {
+            color: var(--danger);
+            animation: blink 0.5s infinite;
+        }
+
+        @keyframes blink { 50% { opacity: 0; } }
+
+        .switch-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .toggle-box {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #fff;
+            margin-right: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .toggle-check {
+            width: 10px;
+            height: 10px;
+            background: var(--highlight);
+            display: none;
+        }
+
+        .active .toggle-check { display: block; }
+
+        /* --- 指南按鈕與彈窗 (新功能) --- */
+        #guide-btn {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            z-index: 1000;
+            background: #000;
+            color: #fff;
+            border: 2px solid #fff;
+            padding: 8px 15px;
+            font-family: inherit;
+            cursor: pointer;
+            box-shadow: 0 0 0 2px #000, 0 0 0 4px #fff;
+            font-size: 1rem;
+        }
+
+        #guide-btn:hover { background: #333; }
+
+        /* 遮罩層 */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 2000;
+            display: none; /* 預設隱藏 */
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 彈窗本體 */
+        .modal-box {
+            background: #000;
+            border: 4px solid #fff;
+            box-shadow: 0 0 0 2px #000, 0 0 0 6px #fff;
+            padding: 20px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            text-align: left;
+        }
+
+        .modal-title {
+            color: var(--highlight);
+            text-align: center;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            border-bottom: 2px dashed #555;
+            padding-bottom: 10px;
+        }
+
+        .guide-section {
+            margin-bottom: 15px;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        .guide-section strong {
+            color: #3498db; /* 勇者藍 */
+        }
+
+        .close-btn {
+            display: block;
+            margin: 20px auto 0;
+            width: 50%;
+            text-align: center;
+        }
+
+    </style>
+</head>
+<body>
+
+    <audio id="bgm-player" loop>
+        <source src="bg-music.mp3" type="audio/mpeg">
+    </audio>
+
+    <button id="guide-btn" onclick="openGuide()">📜 冒險指南</button>
+
+    <div id="guide-modal" class="modal-overlay" onclick="closeGuide(event)">
+        <div class="modal-box" onclick="event.stopPropagation()">
+            <div class="modal-title">⚔️ 勇者操作手冊</div>
+            
+            <div class="guide-section">
+                <strong>1. 準備階段 (Setup)</strong><br>
+                • 建議使用電腦連接電視，並按下 <strong>F11</strong> 進入全螢幕模式，體驗最佳。<br>
+                • 請先在設定頁面輸入您想要的題目數量。
+            </div>
+
+            <div class="guide-section">
+                <strong>2. 遊戲進行 (Quest)</strong><br>
+                • 點擊 <strong>「下一題」</strong> 抽取新的挑戰。<br>
+                • 點擊 <strong>「開始計時」</strong> 啟動倒數。<br>
+                • 倒數最後 5 秒會有「嗶嗶」聲提示，時間到會有長聲警示。
+            </div>
+
+            <div class="guide-section">
+                <strong>3. 音樂與音效 (Sound)</strong><br>
+                • 背景音樂 (BGM) 可隨時由下方的開關切換。<br>
+                • 倒數音效為系統自動合成，無須額外下載檔案。
+            </div>
+
+            <div class="guide-section">
+                <strong>4. 重置遊戲</strong><br>
+                • 若題目抽完或想重新設定，請點擊畫面最下方的「重新載入」文字。
+            </div>
+
+            <button class="btn close-btn" onclick="closeGuide(null)">我知道了</button>
+        </div>
+    </div>
+
+    <div id="setup-screen" class="dq-box">
+        <h1>⚔️ 冒險設置 ⚔️</h1>
+        
+        <div class="setting-group">
+            <label>基礎題數 (Basic):</label>
+            <input type="number" id="basic-count" value="10" min="0">
+        </div>
+
+        <div class="setting-group">
+            <label>進階題數 (Advanced):</label>
+            <input type="number" id="adv-count" value="5" min="0">
+        </div>
+
+        <div class="setting-group">
+            <label>倒數計時 (秒):</label>
+            <input type="number" id="timer-set" value="60" min="10">
+        </div>
+
+        <div class="switch-container" onclick="toggleBGMSetup()" id="setup-bgm-switch">
+            <div class="toggle-box active"><div class="toggle-check"></div></div>
+            <span>背景音樂 (BGM)</span>
+        </div>
+
+        <button class="btn" onclick="startGame()">開始冒險</button>
+    </div>
+
+    <div id="game-screen" class="dq-box">
+        <div class="status-bar">
+            <span id="progress-text">Quest 1/15</span>
+            <span id="level-tag">等級: 基礎</span>
+        </div>
+
+        <div id="question-display">準備中...</div>
+
+        <div class="timer-box" id="timer-display">--</div>
+
+        <button class="btn" id="timer-btn" onclick="toggleTimer()">⏱️ 開始計時</button>
+        <button class="btn" id="next-btn" onclick="nextQuestion()">⚔️ 下一題</button>
+        
+        <div class="switch-container" onclick="toggleBGMGame()" id="game-bgm-switch">
+            <div class="toggle-box active"><div class="toggle-check"></div></div>
+            <span>BGM 開關</span>
+        </div>
+        
+        <div style="margin-top:15px; font-size: 0.8rem; color:#555; cursor:pointer;" onclick="location.reload()">
+            [重新載入/清除紀錄]
+        </div>
+    </div>
+
+    <script>
+        // --- 題庫資料 ---
+        const db_basic = [
+            "珍珠奶茶", "臭豆腐", "鹹酥雞", "大腸包小腸", "滷肉飯", "雞排", "豬血糕", "地瓜球", "蚵仔煎", "小籠包",
+            "牛肉麵", "芒果冰", "木瓜牛奶", "早餐店奶茶", "吃到飽", "迴轉壽司", "薑母鴨", "羊肉爐", "麻辣鍋", "鼎泰豐",
+            "麥當勞", "肯德基", "必勝客", "丹丹漢堡", "永和豆漿", "熱炒店", "流水席", "辦桌", "鳳梨酥", "車輪餅",
+            "追垃圾車", "騎機車", "戴安全帽", "兩段式左轉", "找停車位", "被開罰單", "拖吊車", "塞車", "捷運讓座", "博愛座",
+            "悠遊卡", "YouBike", "夾娃娃機", "便利商店", "請支援收銀", "蝦皮店到店", "統一發票", "中獎", "刮刮樂", "威力彩",
+            "倒垃圾", "等紅綠燈", "行人地獄", "三寶", "酒測", "叫外送", "UberEats", "薪水小偷", "慣老闆", "責任制",
+            "加班費", "眼神死", "情緒勒索", "媽寶", "公主病", "渣男", "暈船", "邊緣人", "社畜", "躺平",
+            "年終獎金", "尾牙", "居家辦公", "視訊會議", "已讀不回", "按讚分享", "網美景點", "修圖", "颱風假", "地震",
+            "停電", "去拜拜", "收驚", "擲筊", "求籤", "安太歲", "搶頭香", "包紅包", "喝喜酒", "打麻將",
+            "滑手機", "自拍", "挖鼻孔", "剪指甲", "刷牙洗臉", "上廁所沒紙", "洗澡唱歌", "量體溫", "做快篩", "打疫苗",
+            "排隊", "插隊", "打架", "報警", "叫救護車", "看牙醫", "減肥", "伏地挺身", "仰臥起坐", "深蹲"
+        ];
+
+        const db_advanced = [
+            "畫蛇添足", "對牛彈琴", "雞飛狗跳", "狐假虎威", "井底之蛙", "守株待兔", "亡羊補牢", "鶴立雞群", "盲人摸象", "魚目混珠",
+            "指鹿為馬", "狼狽為奸", "狗急跳牆", "殺雞儆猴", "騎虎難下", "驚弓之鳥", "如魚得水", "龍飛鳳舞", "笨鳥先飛", "引狼入室",
+            "打草驚蛇", "調虎離山", "葉公好龍", "雞鳴狗盜", "鳳毛麟角", "掩耳盜鈴", "拔苗助長", "刻舟求劍", "負荊請罪", "班門弄斧",
+            "草船借箭", "懸梁刺股", "聞雞起舞", "鑿壁偷光", "東施效顰", "順手牽羊", "抱頭鼠竄", "張牙舞爪", "手舞足蹈", "擠眉弄眼",
+            "怒髮衝冠", "垂頭喪氣", "目瞪口呆", "七竅生煙", "捧腹大笑", "哭笑不得", "面紅耳赤", "咬牙切齒", "愁眉苦臉", "眉開眼笑",
+            "骨瘦如柴", "大腹便便", "頭破血流", "心如刀割", "汗如雨下", "熱鍋螞蟻", "呆若木雞", "口若懸河", "大吃一驚", "一箭雙鵰",
+            "百步穿楊", "杯弓蛇影", "鐵樹開花", "鏡花水月", "門可羅雀", "高樓大廈", "車水馬龍", "水滴石穿", "曇花一現", "勢如破竹",
+            "一刀兩斷", "支離破碎", "藕斷絲連", "錦上添花", "雪中送炭", "火上加油", "如履薄冰", "泰山壓頂", "一石二鳥", "畫餅充飢",
+            "望梅止渴", "飛蛾撲火", "螳臂擋車", "緣木求魚", "甕中捉鱉", "自投羅網", "金蟬脫殼", "鳩佔鵲巢", "老馬識途", "三頭六臂",
+            "異想天開", "想入非非", "心不在焉", "冥思苦想", "猶豫不決", "提心吊膽", "心花怒放", "惱羞成怒", "幸災樂禍", "杞人憂天",
+            "剛愎自用", "優柔寡斷", "自作多情", "恍然大悟", "魂飛魄散", "不可思議", "莫名其妙", "喜出望外", "樂不思蜀", "歸心似箭",
+            "雞同鴨講", "竊竊私語", "喋喋不休", "唇槍舌劍", "甜言蜜語", "搬弄是非", "眾口鑠金", "震耳欲聾", "鴉雀無聲", "異口同聲",
+            "推三阻四", "勾心斗角", "爾虞我詐", "眾叛親離", "格格不入", "自相矛盾", "進退兩難", "本末倒置", "雪上加霜", "絕處逢生",
+            "三個臭皮匠", "瞎貓碰上死耗子", "雞蛋裡挑骨頭", "薑是老的辣", "狗嘴吐不出象牙",
+            "癩蛤蟆想吃天鵝肉", "此地無銀三百兩", "賠了夫人又折兵", "不見棺材不掉淚", "吃不到葡萄說葡萄酸",
+            "留得青山在不怕沒柴燒", "一朝被蛇咬十年怕草繩", "偷雞不著蝕把米", "井水不犯河水", "五十步笑百步",
+            "打破砂鍋問到底", "惡人先告狀", "人不可貌相", "八字還沒一撇", "天下沒有白吃的午餐"
+        ];
+
+        // --- 遊戲狀態 ---
+        let gameQueue = [];
+        let currentIndex = -1;
+        let timerDuration = 60;
+        let timerInterval = null;
+        let isBGMOn = true;
+        let audioContext = null;
+
+        // --- DOM ---
+        const setupScreen = document.getElementById('setup-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const bgmPlayer = document.getElementById('bgm-player');
+        const questionDisplay = document.getElementById('question-display');
+        const progressText = document.getElementById('progress-text');
+        const levelTag = document.getElementById('level-tag');
+        const timerDisplay = document.getElementById('timer-display');
+        const timerBtn = document.getElementById('timer-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const guideModal = document.getElementById('guide-modal');
+
+        // --- 指南開關邏輯 ---
+        function openGuide() {
+            guideModal.style.display = 'flex';
+        }
+
+        function closeGuide(event) {
+            // 如果有點擊事件，且點擊的是遮罩層本身(overlay)或按鈕，才關閉
+            // 點擊對話框內容(box)不會關閉
+            if (event === null || event.target === guideModal) {
+                guideModal.style.display = 'none';
+            }
+        }
+
+        // --- 1. 初始化與開始遊戲 ---
+        function startGame() {
+            const basicCount = parseInt(document.getElementById('basic-count').value) || 0;
+            const advCount = parseInt(document.getElementById('adv-count').value) || 0;
+            timerDuration = parseInt(document.getElementById('timer-set').value) || 60;
+
+            if (basicCount > db_basic.length || advCount > db_advanced.length) {
+                alert(`勇者啊！題庫存量不足！\n\n目前擁有：\n基礎題 ${db_basic.length} 題\n進階題 ${db_advanced.length} 題\n\n請減少設定數量或按下方的「重新載入」清除歷史紀錄。`);
+                return;
+            }
+            if (basicCount + advCount === 0) {
+                alert("請至少設定一題才能開始冒險！");
+                return;
+            }
+
+            const selectedBasic = shuffleArray([...db_basic]).slice(0, basicCount).map(t => ({text: t, type: '基礎'}));
+            const selectedAdv = shuffleArray([...db_advanced]).slice(0, advCount).map(t => ({text: t, type: '進階'}));
+            gameQueue = shuffleArray([...selectedBasic, ...selectedAdv]);
+
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            }
+
+            setupScreen.style.display = 'none';
+            gameScreen.style.display = 'block';
+
+            if (isBGMOn) {
+                bgmPlayer.volume = 0.5;
+                bgmPlayer.play().catch(e => console.log("BGM Autoplay blocked"));
+            }
+
+            nextQuestion();
+        }
+
+        // --- 2. 題目控制 ---
+        function nextQuestion() {
+            stopTimer();
+            timerDisplay.innerText = timerDuration;
+            timerDisplay.classList.remove('timer-warning');
+            timerBtn.innerText = "⏱️ 開始計時";
+            timerBtn.disabled = false;
+
+            currentIndex++;
+
+            if (currentIndex >= gameQueue.length) {
+                questionDisplay.innerText = "🎉 任務完成！";
+                progressText.innerText = "END";
+                levelTag.innerText = "-";
+                nextBtn.innerText = "重新開始";
+                nextBtn.onclick = () => location.reload();
+                timerBtn.disabled = true;
+                return;
+            }
+
+            const q = gameQueue[currentIndex];
+            questionDisplay.innerText = q.text;
+            
+            if (q.text.length > 8) questionDisplay.style.fontSize = "2.2rem";
+            else if (q.text.length > 5) questionDisplay.style.fontSize = "2.5rem";
+            else questionDisplay.style.fontSize = "3rem";
+
+            progressText.innerText = `Quest ${currentIndex + 1}/${gameQueue.length}`;
+            levelTag.innerText = `等級: ${q.type}`;
+        }
+
+        // --- 3. 計時器與音效 ---
+        function toggleTimer() {
+            if (timerInterval) {
+                stopTimer();
+                return; 
+            }
+            
+            let timeLeft = timerDuration;
+            timerDisplay.innerText = timeLeft;
+            timerBtn.innerText = "⏹️ 停止";
+            
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                timerDisplay.innerText = timeLeft;
+
+                if (timeLeft <= 5 && timeLeft > 0) {
+                    timerDisplay.classList.add('timer-warning');
+                    playBeep(440, 0.1); 
+                } else if (timeLeft === 0) {
+                    playBeep(880, 0.5); 
+                    timerDisplay.innerText = "時間到！";
+                    stopTimer();
+                    timerBtn.innerText = "⏱️ 開始計時";
+                }
+            }, 1000);
+        }
+
+        function stopTimer() {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            timerDisplay.classList.remove('timer-warning');
+        }
+
+        function playBeep(frequency, duration) {
+            if (!audioContext) return;
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.type = 'square'; 
+            oscillator.frequency.value = frequency;
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            oscillator.start();
+            gainNode.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + duration);
+            oscillator.stop(audioContext.currentTime + duration);
+        }
+
+        // --- 4. BGM 開關控制 ---
+        function toggleBGMSetup() {
+            isBGMOn = !isBGMOn;
+            updateSwitchUI('setup-bgm-switch', isBGMOn);
+            updateSwitchUI('game-bgm-switch', isBGMOn); 
+        }
+
+        function toggleBGMGame() {
+            isBGMOn = !isBGMOn;
+            updateSwitchUI('setup-bgm-switch', isBGMOn);
+            updateSwitchUI('game-bgm-switch', isBGMOn);
+            
+            if (isBGMOn) bgmPlayer.play();
+            else bgmPlayer.pause();
+        }
+
+        function updateSwitchUI(id, isOn) {
+            const el = document.getElementById(id).querySelector('.toggle-box');
+            if (isOn) el.classList.add('active');
+            else el.classList.remove('active');
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+    </script>
+</body>
+</html>
