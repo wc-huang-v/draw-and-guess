@@ -46,7 +46,7 @@
             width: 100%; max-width: 600px;
             text-align: center; 
             border: 1px solid rgba(255,255,255,0.1);
-            overflow: hidden; /* 緞帶需要這個，所以氣泡必須乖乖待在框內 */
+            overflow: hidden; 
         }
 
         h1 {
@@ -127,7 +127,7 @@
         .timer-container { 
             margin: 10px auto; 
             display: flex; flex-direction: column; align-items: center; 
-            position: relative; /* 氣泡定位基準 */
+            position: relative; 
         }
         
         .timer-box { 
@@ -148,7 +148,7 @@
         .timer-warning { color: var(--danger) !important; animation: pulse 0.5s infinite alternate; }
         @keyframes pulse { from { opacity: 1; } to { opacity: 0.6; } }
 
-        /* --- ★ 氣泡位置修正：放在右側 (內部) --- */
+        /* 氣泡提示 (修正位置版) */
         .go-popup {
             position: absolute;
             top: 50%; /* 垂直置中 */
@@ -162,12 +162,7 @@
             opacity: 0; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             pointer-events: none; z-index: 10;
         }
-        
-        /* 彈出動畫：放大並旋轉 */
-        .go-popup.show { 
-            transform: translateY(-50%) scale(1) rotate(10deg); 
-            opacity: 1; 
-        }
+        .go-popup.show { transform: translateY(-50%) scale(1) rotate(10deg); opacity: 1; }
 
         .switch-container { display: inline-flex; align-items: center; justify-content: center; margin-top: 15px; font-size: 0.9rem; font-weight: 500; color: #a4b0be; cursor: pointer; gap: 8px; }
         .toggle-box { width: 40px; height: 22px; background: #dfe4ea; border-radius: 20px; position: relative; transition: background 0.3s; }
@@ -184,7 +179,6 @@
         .guide-section { margin-bottom: 18px; line-height: 1.6; font-size: 1rem; color: #555; text-align: left;}
         .guide-section strong { color: var(--accent-color); }
 
-        /* --- 手機版修正：氣泡改到正中央，避免左右被切 --- */
         @media (max-width: 600px) {
             .variety-box { padding: 25px 20px; padding-top: 60px; }
             .top-btn-group { position: absolute; top: 15px; right: 15px; width: auto; }
@@ -192,16 +186,12 @@
             #question-display { min-height: 180px; font-size: 3rem; } 
             .btn { font-size: 1.3rem; padding: 14px; }
             
-            /* 氣泡覆蓋在計時器正中央 */
+            /* 手機版氣泡位置 */
             .go-popup {
-                top: 50%;
-                left: 50%;
-                margin-left: 0;
+                top: 50%; left: 50%; margin-left: 0;
                 transform: translate(-50%, -50%) scale(0);
             }
-            .go-popup.show {
-                transform: translate(-50%, -50%) scale(1.2) rotate(-5deg); /* 稍微放大一點 */
-            }
+            .go-popup.show { transform: translate(-50%, -50%) scale(1.2) rotate(-5deg); }
         }
     </style>
 </head>
@@ -358,7 +348,7 @@
             gameScreen.style.display = 'block';
             demoRibbon.style.display = 'block';
             if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            if (isBGMOn) bgmPlayer.play().catch(e => console.log("BGM blocked"));
+            // ★ Demo 模式開始時不自動播放，等 Timer 觸發
             nextQuestion();
         }
 
@@ -388,8 +378,7 @@
             gameScreen.style.display = 'block';
             demoRibbon.style.display = 'none';
             
-            if (isBGMOn) bgmPlayer.play().catch(e => console.log("BGM blocked"));
-
+            // ★ 正式開始時不自動播放，等 Timer 觸發
             nextQuestion();
         }
 
@@ -510,10 +499,14 @@
             });
         }
 
+        // --- ★ 核心計時器：控制 BGM 播放與暫停 ---
         function runTimer(seconds, onComplete) {
             clearInterval(timerInterval);
             let timeLeft = seconds;
             timerDisplay.innerHTML = timeLeft;
+
+            // ★ 開始計時：如果 BGM 開關是開的，就播放
+            if (isBGMOn) bgmPlayer.play().catch(e => console.log("BGM blocked/paused"));
 
             timerInterval = setInterval(() => {
                 timeLeft--;
@@ -527,6 +520,8 @@
 
                 if (timeLeft < 0) {
                     clearInterval(timerInterval);
+                    timerInterval = null; // 清除狀態
+                    bgmPlayer.pause(); // ★ 時間到：暫停音樂
                     if (onComplete) onComplete();
                 }
             }, 1000);
@@ -535,8 +530,9 @@
         function stopTimer(fullReset = false) {
             clearInterval(timerInterval);
             timerInterval = null;
-            timerDisplay.classList.remove('timer-warning');
+            bgmPlayer.pause(); // ★ 手動停止：暫停音樂
             
+            timerDisplay.classList.remove('timer-warning');
             goPopup.classList.remove('show');
             updateQuestionText(false);
 
@@ -599,14 +595,27 @@
             osc2.stop(audioContext.currentTime + 0.2);
         }
 
+        // --- ★ BGM 開關控制：連動計時器狀態 ---
         function toggleBGMSetup() { isBGMOn = !isBGMOn; updateSwitchUI('setup-bgm-switch', isBGMOn); updateSwitchUI('game-bgm-switch', isBGMOn); }
-        function toggleBGMGame() { isBGMOn = !isBGMOn; updateSwitchUI('setup-bgm-switch', isBGMOn); updateSwitchUI('game-bgm-switch', isBGMOn); if (isBGMOn) bgmPlayer.play(); else bgmPlayer.pause(); }
+        
+        function toggleBGMGame() { 
+            isBGMOn = !isBGMOn; 
+            updateSwitchUI('setup-bgm-switch', isBGMOn); 
+            updateSwitchUI('game-bgm-switch', isBGMOn); 
+            
+            // ★ 如果計時器正在跑 (timerInterval 不為 null)，根據開關狀態決定播放或暫停
+            if (timerInterval) {
+                if (isBGMOn) bgmPlayer.play();
+                else bgmPlayer.pause();
+            }
+        }
         
         function updateSwitchUI(id, isOn) { 
             const container = document.getElementById(id);
             if (isOn) container.classList.add('active'); 
             else container.classList.remove('active');
         }
+        
         function shuffleArray(array) { for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [array[i], array[j]] = [array[j], array[i]]; } return array; }
 
         function resetHistory() {
