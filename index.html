@@ -70,7 +70,7 @@
         #demo-btn { color: #f39c12; }
         #demo-btn:hover { background: #f39c12; color: #fff; }
 
-        /* 試玩模式標籤 */
+        /* 試玩模式緞帶 */
         .demo-ribbon {
             position: absolute; top: 35px; left: -45px; width: 180px;
             background: #ffeb3b; color: #d32f2f; font-weight: 900;
@@ -127,7 +127,7 @@
         .timer-container { 
             margin: 10px auto; 
             display: flex; flex-direction: column; align-items: center; 
-            position: relative; 
+            position: relative; /* 氣泡定位基準 */
         }
         
         .timer-box { 
@@ -148,21 +148,25 @@
         .timer-warning { color: var(--danger) !important; animation: pulse 0.5s infinite alternate; }
         @keyframes pulse { from { opacity: 1; } to { opacity: 0.6; } }
 
-        /* 氣泡提示 (修正位置版) */
+        /* 氣泡位置：正上方 (防切) */
         .go-popup {
             position: absolute;
-            top: 50%; /* 垂直置中 */
-            left: 100%; /* 放在計時器右邊 */
-            margin-left: 20px; /* 距離計時器 20px */
-            transform: translateY(-50%) scale(0); /* 初始縮小 */
+            top: -60px; /* 往上移 */
+            left: 50%;  /* 置中 */
+            transform: translate(-50%, 20px) scale(0); /* 初始狀態：隱藏 */
             
-            background: #ff6b6b; color: #fff; padding: 10px 20px; border-radius: 50px;
-            font-size: 1.5rem; font-weight: 900; white-space: nowrap;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3); border: 3px solid #fff;
+            background: #ff6b6b; color: #fff; padding: 12px 25px; border-radius: 50px;
+            font-size: 1.6rem; font-weight: 900; white-space: nowrap;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3); border: 4px solid #fff;
             opacity: 0; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             pointer-events: none; z-index: 10;
         }
-        .go-popup.show { transform: translateY(-50%) scale(1) rotate(10deg); opacity: 1; }
+        
+        /* 彈出狀態 */
+        .go-popup.show { 
+            transform: translate(-50%, 0) scale(1) rotate(-5deg); 
+            opacity: 1; 
+        }
 
         .switch-container { display: inline-flex; align-items: center; justify-content: center; margin-top: 15px; font-size: 0.9rem; font-weight: 500; color: #a4b0be; cursor: pointer; gap: 8px; }
         .toggle-box { width: 40px; height: 22px; background: #dfe4ea; border-radius: 20px; position: relative; transition: background 0.3s; }
@@ -186,7 +190,7 @@
             #question-display { min-height: 180px; font-size: 3rem; } 
             .btn { font-size: 1.3rem; padding: 14px; }
             
-            /* 手機版氣泡位置 */
+            /* 手機版氣泡位置 (因為電腦版已經改中間了，這裡可以共用，只需微調大小) */
             .go-popup {
                 top: 50%; left: 50%; margin-left: 0;
                 transform: translate(-50%, -50%) scale(0);
@@ -211,6 +215,7 @@
             </div>
             <div class="guide-section"><strong><i class="fas fa-stopwatch"></i> 3. 自動流程</strong><br>按下「下一題」後，自動開始 10秒 倒數。</div>
             <div class="guide-section"><strong><i class="fas fa-running"></i> 4. 接力玩法</strong><br>時間到後，按鈕會重置。下一棒按下按鈕，會先有 5秒 看畫時間，才開始計時。</div>
+            <div class="guide-section"><strong><i class="fas fa-mobile-alt"></i> 5. 跨裝置支援</strong><br>本遊戲支援電腦、平板與手機，版面會自動調整，任何裝置都能玩！</div>
             <button class="btn" onclick="closeGuide(null)" style="margin-top:10px;">
                 <i class="fas fa-check"></i> 我知道了
             </button>
@@ -302,6 +307,7 @@
         let isDemoMode = false;
         let timerPhase = 'idle'; 
         let currentPrepDuration = 5;
+        let isTimerRunning = false;
 
         const setupScreen = document.getElementById('setup-screen');
         const gameScreen = document.getElementById('game-screen');
@@ -348,7 +354,6 @@
             gameScreen.style.display = 'block';
             demoRibbon.style.display = 'block';
             if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            // ★ Demo 模式開始時不自動播放，等 Timer 觸發
             nextQuestion();
         }
 
@@ -378,7 +383,6 @@
             gameScreen.style.display = 'block';
             demoRibbon.style.display = 'none';
             
-            // ★ 正式開始時不自動播放，等 Timer 觸發
             nextQuestion();
         }
 
@@ -499,13 +503,14 @@
             });
         }
 
-        // --- ★ 核心計時器：控制 BGM 播放與暫停 ---
         function runTimer(seconds, onComplete) {
             clearInterval(timerInterval);
             let timeLeft = seconds;
             timerDisplay.innerHTML = timeLeft;
+            
+            isTimerRunning = true;
 
-            // ★ 開始計時：如果 BGM 開關是開的，就播放
+            // ★ BGM 連動：計時開始，若開關為 ON 則播放
             if (isBGMOn) bgmPlayer.play().catch(e => console.log("BGM blocked/paused"));
 
             timerInterval = setInterval(() => {
@@ -520,8 +525,10 @@
 
                 if (timeLeft < 0) {
                     clearInterval(timerInterval);
-                    timerInterval = null; // 清除狀態
-                    bgmPlayer.pause(); // ★ 時間到：暫停音樂
+                    timerInterval = null;
+                    isTimerRunning = false;
+                    bgmPlayer.pause(); // ★ 計時結束，停止 BGM
+                    
                     if (onComplete) onComplete();
                 }
             }, 1000);
@@ -530,7 +537,8 @@
         function stopTimer(fullReset = false) {
             clearInterval(timerInterval);
             timerInterval = null;
-            bgmPlayer.pause(); // ★ 手動停止：暫停音樂
+            isTimerRunning = false;
+            bgmPlayer.pause(); // ★ 手動停止，停止 BGM
             
             timerDisplay.classList.remove('timer-warning');
             goPopup.classList.remove('show');
@@ -595,7 +603,7 @@
             osc2.stop(audioContext.currentTime + 0.2);
         }
 
-        // --- ★ BGM 開關控制：連動計時器狀態 ---
+        // ★ BGM 開關連動：若計時中切換，即時生效
         function toggleBGMSetup() { isBGMOn = !isBGMOn; updateSwitchUI('setup-bgm-switch', isBGMOn); updateSwitchUI('game-bgm-switch', isBGMOn); }
         
         function toggleBGMGame() { 
@@ -603,8 +611,7 @@
             updateSwitchUI('setup-bgm-switch', isBGMOn); 
             updateSwitchUI('game-bgm-switch', isBGMOn); 
             
-            // ★ 如果計時器正在跑 (timerInterval 不為 null)，根據開關狀態決定播放或暫停
-            if (timerInterval) {
+            if (isTimerRunning) {
                 if (isBGMOn) bgmPlayer.play();
                 else bgmPlayer.pause();
             }
@@ -615,7 +622,6 @@
             if (isOn) container.classList.add('active'); 
             else container.classList.remove('active');
         }
-        
         function shuffleArray(array) { for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [array[i], array[j]] = [array[j], array[i]]; } return array; }
 
         function resetHistory() {
