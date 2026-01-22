@@ -5,32 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>你畫我猜成語版</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <script src="questions.js"></script>
 
     <style>
         :root {
-            /* --- 配色重構：現代和諧風格 --- */
-            /* 背景：深邃的靛藍漸層，更有質感，不刺眼 */
             --main-bg: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            
-            /* 卡片：乾淨的白色，搭配柔和陰影 */
             --box-bg: #ffffff;
-            --box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            --box-shadow: 0 10px 30px rgba(0,0,0,0.25);
             
-            /* 文字：深灰與與深藍，閱讀舒適 */
-            --text-main: #333333;
-            --text-sub: #666666;
+            --text-main: #2c3e50;
+            --text-sub: #636e72;
             
-            /* 重點色：珊瑚紅 (用於主要按鈕/強調) */
-            --accent-color: #ff6b6b;
-            --accent-hover: #ee5253;
-            
-            /* 輔助色：天藍 (用於計時器/標題) */
-            --secondary-color: #48dbfb;
+            --accent-color: #ff6b6b; /* 珊瑚紅 */
+            --secondary-color: #48dbfb; /* 天藍 */
             --secondary-dark: #0abde3;
+            --gold: #feca57; /* 金色 icon 用 */
             
-            /* 警告色 */
             --danger: #ff4757;
         }
 
@@ -44,109 +36,88 @@
             min-height: 100vh; margin: 0; padding: 15px; overflow-x: hidden;
         }
 
-        /* 主視窗卡片設計 */
         .variety-box {
             background: var(--box-bg); 
             border-radius: 24px;
             box-shadow: var(--box-shadow);
             padding: 30px 25px; 
-            position: relative; /* 讓內部的絕對定位元素以這裡為基準 */
+            position: relative;
             margin-bottom: 20px;
             width: 100%; max-width: 600px;
             text-align: center; 
             border: 1px solid rgba(255,255,255,0.1);
         }
 
+        /* 標題區域優化 */
         h1 {
-            color: #2c3e50; 
+            color: var(--text-main); 
             font-weight: 900; 
             font-size: 2.2rem; 
             margin: 10px 0 25px 0;
             letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px; /* 圖示與文字的距離 */
         }
+        
+        /* 標題圖示顏色 */
+        h1 i { color: var(--accent-color); font-size: 1.8rem; }
 
-        /* --- 規則說明按鈕 (整合進卡片右上角) --- */
+        /* 右上角規則按鈕 */
         #guide-btn-integrated {
             position: absolute;
-            top: 20px;
-            right: 20px;
+            top: 20px; right: 20px;
             background: #f1f2f6;
             color: #747d8c;
-            border: none;
-            border-radius: 50%;
-            width: 36px;
-            height: 36px;
+            border: none; border-radius: 50%;
+            width: 40px; height: 40px;
             font-size: 1.2rem;
             cursor: pointer;
             display: flex; align-items: center; justify-content: center;
             transition: all 0.2s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         #guide-btn-integrated:hover {
-            background: var(--secondary-color);
-            color: #fff;
-            transform: scale(1.1);
+            background: var(--secondary-dark); color: #fff; transform: rotate(15deg);
         }
 
-        /* 設定群組 */
         .setting-group { margin-bottom: 20px; text-align: left; padding: 0 10px; }
-        .setting-group label {
-            display: block;
-            color: #2c3e50;
-            font-weight: 700;
-            font-size: 1.1rem;
-            margin-bottom: 8px;
-        }
         
-        .remain-hint { font-size: 0.85rem; color: var(--text-sub); margin-top: 5px; font-weight: 500; }
+        /* 標籤加上圖示 */
+        .setting-group label {
+            display: flex; align-items: center; gap: 8px;
+            color: var(--text-main);
+            font-weight: 700; font-size: 1.1rem; margin-bottom: 8px;
+        }
+        .setting-group label i { color: var(--secondary-dark); width: 20px; text-align: center; }
+
+        .remain-hint { font-size: 0.85rem; color: var(--text-sub); margin-top: 5px; font-weight: 500; margin-left: 30px; }
 
         input[type="number"] { 
-            width: 100%; 
-            border: 2px solid #dfe4ea; 
-            border-radius: 12px; 
-            padding: 12px; 
-            font-size: 1.4rem; 
-            font-weight: 700; 
-            text-align: center; 
-            color: #2f3542;
-            background: #f1f2f6;
-            transition: border-color 0.2s;
+            width: 100%; border: 2px solid #dfe4ea; border-radius: 12px; padding: 12px; 
+            font-size: 1.4rem; font-weight: 700; text-align: center; color: #2f3542; background: #f1f2f6; transition: border-color 0.2s;
         }
-        input[type="number"]:focus {
-            border-color: var(--secondary-dark);
-            outline: none;
-            background: #fff;
-        }
+        input[type="number"]:focus { border-color: var(--secondary-dark); outline: none; background: #fff; }
 
-        /* 通用按鈕樣式 (扁平化現代風) */
         .btn {
-            background: var(--accent-color);
-            color: #fff; 
-            border: none; border-radius: 50px; 
-            padding: 16px 30px; 
-            font-size: 1.4rem; font-weight: 700; 
+            background: var(--accent-color); color: #fff; border: none; border-radius: 50px; 
+            padding: 16px 30px; font-size: 1.4rem; font-weight: 700; 
             cursor: pointer; width: 100%; margin-top: 20px;
-            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4); 
-            transition: all 0.2s;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4); transition: all 0.2s;
+            display: flex; align-items: center; justify-content: center; gap: 10px; /* 圖示文字間距 */
         }
         .btn:active { transform: scale(0.98); box-shadow: 0 2px 5px rgba(255, 107, 107, 0.2); }
         .btn:disabled { background: #ced6e0; box-shadow: none; cursor: not-allowed; }
 
-        /* 計時按鈕 (藍色系) */
-        .btn-blue {
-            background: var(--secondary-dark);
-            box-shadow: 0 4px 15px rgba(10, 189, 227, 0.4);
-        }
+        .btn-blue { background: var(--secondary-dark); box-shadow: 0 4px 15px rgba(10, 189, 227, 0.4); }
         .btn-blue:active { box-shadow: 0 2px 5px rgba(10, 189, 227, 0.2); }
 
-        /* 隱藏式放棄按鈕 */
         .btn-quit {
-            background: transparent;
-            color: #a4b0be;
-            border: none; box-shadow: none;
-            font-size: 0.9rem;
-            padding: 15px; margin-top: 10px;
-            text-decoration: none; width: auto;
+            background: transparent; color: #a4b0be; border: none; box-shadow: none;
+            font-size: 0.9rem; padding: 15px; margin-top: 10px; text-decoration: none; width: auto;
             cursor: pointer; transition: color 0.3s;
+            display: inline-flex; align-items: center; gap: 5px;
         }
         .btn-quit:hover { color: var(--danger); text-decoration: underline; }
 
@@ -157,42 +128,35 @@
             font-size: 1rem; font-weight: 700; color: #57606f; 
             background: #f1f2f6; padding: 10px 20px; border-radius: 50px;
         }
+        .status-bar i { margin-right: 5px; }
 
-        /* 題目顯示區 */
         #question-display {
             font-size: 4rem; font-weight: 900; min-height: 220px;
             display: flex; align-items: center; justify-content: center;
-            color: #2f3542; 
-            background: #fff;
-            /* 虛線邊框改為柔和的實線或內陰影 */
-            border: 2px dashed #dfe4ea;
-            border-radius: 20px; margin: 15px 0; padding: 10px;
-            word-break: keep-all;
+            color: #2f3542; background: #fff; border: 2px dashed #dfe4ea;
+            border-radius: 20px; margin: 15px 0; padding: 10px; word-break: keep-all;
         }
 
         .timer-box { 
             font-size: 2.5rem; font-weight: 700; margin: 10px auto; padding: 5px 30px; 
-            color: var(--secondary-dark); 
-            display: inline-block; 
-            font-feature-settings: "tnum"; /* 讓數字等寬，倒數時不會跳動 */
+            color: var(--secondary-dark); display: inline-flex; align-items: center; gap: 10px;
+            font-feature-settings: "tnum";
         }
         .timer-warning { color: var(--danger); animation: pulse 0.5s infinite alternate; }
         @keyframes pulse { from { opacity: 1; } to { opacity: 0.6; } }
 
-        /* BGM 開關 */
-        .switch-container { display: inline-flex; align-items: center; justify-content: center; margin-top: 15px; font-size: 0.9rem; font-weight: 500; color: #a4b0be; cursor: pointer; }
-        .toggle-box { width: 40px; height: 22px; background: #dfe4ea; border-radius: 20px; margin-right: 10px; position: relative; transition: background 0.3s; }
+        .switch-container { display: inline-flex; align-items: center; justify-content: center; margin-top: 15px; font-size: 0.9rem; font-weight: 500; color: #a4b0be; cursor: pointer; gap: 8px; }
+        .toggle-box { width: 40px; height: 22px; background: #dfe4ea; border-radius: 20px; position: relative; transition: background 0.3s; }
         .toggle-circle { width: 16px; height: 16px; background: #fff; border-radius: 50%; position: absolute; top: 3px; left: 3px; transition: transform 0.3s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
         .active .toggle-box { background: var(--secondary-dark); }
         .active .toggle-circle { transform: translateX(18px); }
 
-        .reload-link { margin-top: 25px; font-size: 0.9rem; color: #ccc; cursor:pointer; font-weight: 500; transition: color 0.3s; }
+        .reload-link { margin-top: 25px; font-size: 0.9rem; color: #ccc; cursor:pointer; font-weight: 500; transition: color 0.3s; display: inline-flex; align-items: center; gap: 5px; }
         .reload-link:hover { color: var(--danger); }
 
-        /* 彈窗樣式 */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(2px); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 20px; }
         .modal-box { background: #fff; border-radius: 24px; padding: 30px; width: 100%; max-width: 450px; max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
-        .modal-title { color: #2c3e50; text-align: center; font-size: 1.5rem; font-weight: 700; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
+        .modal-title { color: #2c3e50; text-align: center; font-size: 1.5rem; font-weight: 700; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px; display: flex; align-items: center; justify-content: center; gap: 10px;}
         .guide-section { margin-bottom: 18px; line-height: 1.6; font-size: 1rem; color: #555; text-align: left;}
         .guide-section strong { color: var(--accent-color); }
 
@@ -210,69 +174,91 @@
 
     <div id="guide-modal" class="modal-overlay" onclick="closeGuide(event)">
         <div class="modal-box" onclick="event.stopPropagation()">
-            <div class="modal-title">🎨 遊戲規則</div>
-            <div class="guide-section"><strong>1. 基礎與進階</strong><br>「基礎題」多為具象好畫的成語；「進階題」則為抽象或複雜的挑戰。</div>
-            <div class="guide-section"><strong>2. 智慧不重複</strong><br>系統會記住這台裝置玩過的題目，直到題庫用盡。</div>
-            <div class="guide-section"><strong>3. 操作密技</strong><br>時間設定可按上下鍵增減 10 秒。遊戲中可按「放棄」回到首頁。</div>
-            <div class="guide-section"><strong>4. 重置紀錄</strong><br>若想重新遊玩所有題目，請點擊設定頁下方的「清除紀錄」。</div>
-            <button class="btn" onclick="closeGuide(null)" style="margin-top:10px;">我知道了</button>
+            <div class="modal-title"><i class="fas fa-book-open"></i> 遊戲規則</div>
+            <div class="guide-section"><strong><i class="fas fa-shapes"></i> 1. 基礎與進階</strong><br>「基礎題」多為具象好畫的成語；「進階題」則為抽象或複雜的挑戰。</div>
+            <div class="guide-section"><strong><i class="fas fa-brain"></i> 2. 智慧不重複</strong><br>系統會記住這台裝置玩過的題目，直到題庫用盡。</div>
+            <div class="guide-section"><strong><i class="fas fa-stopwatch"></i> 3. 操作密技</strong><br>時間設定可按上下鍵增減 10 秒。遊戲中可按「放棄」回到首頁。</div>
+            <div class="guide-section"><strong><i class="fas fa-trash-alt"></i> 4. 重置紀錄</strong><br>若想重新遊玩所有題目，請點擊設定頁下方的「清除紀錄」。</div>
+            <button class="btn" onclick="closeGuide(null)" style="margin-top:10px;">
+                <i class="fas fa-check"></i> 我知道了
+            </button>
         </div>
     </div>
 
     <div id="setup-screen" class="variety-box">
-        <button id="guide-btn-integrated" onclick="openGuide()" title="規則說明">?</button>
+        <button id="guide-btn-integrated" onclick="openGuide()" title="規則說明">
+            <i class="fas fa-question"></i>
+        </button>
 
-        <h1>你畫我猜 <span style="font-size:1rem; color:#888; font-weight:500;">成語版</span></h1>
+        <h1>
+            <i class="fas fa-palette"></i> 
+            你畫我猜 
+            <span style="font-size:1.1rem; color:#888; font-weight:500; margin-top:8px;">成語版</span>
+        </h1>
         
         <div class="setting-group">
-            <label>基礎題數 (具象)</label>
+            <label><i class="fas fa-cubes"></i> 基礎題數 (具象)</label>
             <input type="number" id="basic-count" value="3" min="0">
             <span id="basic-remain" class="remain-hint">載入中...</span>
         </div>
 
         <div class="setting-group">
-            <label>進階題數 (抽象)</label>
+            <label><i class="fas fa-layer-group"></i> 進階題數 (抽象)</label>
             <input type="number" id="adv-count" value="2" min="0">
             <span id="adv-remain" class="remain-hint">載入中...</span>
         </div>
 
         <div class="setting-group">
-            <label>倒數時間 (秒)</label>
+            <label><i class="fas fa-hourglass-half"></i> 倒數時間 (秒)</label>
             <input type="number" id="timer-set" value="20" min="10" step="10">
         </div>
 
         <div class="switch-container" onclick="toggleBGMSetup()" id="setup-bgm-switch">
             <div class="toggle-box"><div class="toggle-circle"></div></div>
-            <span>背景音樂 (BGM)</span>
+            <span><i class="fas fa-music"></i> 背景音樂 (BGM)</span>
         </div>
 
-        <button class="btn" onclick="startGame()">開始挑戰</button>
+        <button class="btn" onclick="startGame()">
+            <i class="fas fa-play"></i> 開始挑戰
+        </button>
         
         <div class="reload-link" onclick="resetHistory()">
-            清除已玩紀錄 (重置題庫)
+            <i class="fas fa-trash-alt"></i> 清除已玩紀錄 (重置題庫)
         </div>
     </div>
 
     <div id="game-screen" class="variety-box">
         <div class="status-bar">
-            <span id="level-tag" style="color:var(--secondary-dark);">● 基礎題</span>
+            <span id="level-tag" style="color:var(--secondary-dark);">
+                <i class="fas fa-tag"></i> 基礎題
+            </span>
             <span id="progress-text">1 / 5</span>
         </div>
 
         <div id="question-display">準備中...</div>
-        <div class="timer-box" id="timer-display">--</div>
+        
+        <div class="timer-box" id="timer-display">
+            <i class="fas fa-clock"></i> --
+        </div>
 
-        <button class="btn btn-blue" id="timer-btn" onclick="toggleTimer()">開始計時</button>
-        <button class="btn" id="next-btn" onclick="nextQuestion()">下一題</button>
+        <button class="btn btn-blue" id="timer-btn" onclick="toggleTimer()">
+            <i class="fas fa-stopwatch"></i> 開始計時
+        </button>
+        
+        <button class="btn" id="next-btn" onclick="nextQuestion()">
+            下一題 <i class="fas fa-chevron-right"></i>
+        </button>
         
         <div style="margin-top: 15px;">
             <div class="switch-container" onclick="toggleBGMGame()" id="game-bgm-switch">
                 <div class="toggle-box"><div class="toggle-circle"></div></div>
-                <span>BGM</span>
+                <span><i class="fas fa-music"></i> BGM</span>
             </div>
         </div>
 
-        <button class="btn-quit" onclick="confirmQuit()">放棄本局 / 回到設定</button>
+        <button class="btn-quit" onclick="confirmQuit()">
+            <i class="fas fa-undo"></i> 放棄本局 / 回到設定
+        </button>
     </div>
 
     <script>
@@ -281,7 +267,7 @@
         let currentIndex = -1;
         let timerDuration = 60;
         let timerInterval = null;
-        let isBGMOn = false; // 預設關閉 BGM，比較不擾人，使用者想開再開
+        let isBGMOn = false;
         let audioContext = null;
         let playedHistory = JSON.parse(localStorage.getItem('playedIdiomsHistory')) || [];
 
@@ -348,18 +334,21 @@
         // --- 2. 題目控制 ---
         function nextQuestion() {
             stopTimer();
-            timerDisplay.innerText = timerDuration;
+            // 重置計時器顯示
+            timerDisplay.innerHTML = '<i class="fas fa-clock"></i> ' + timerDuration;
             timerDisplay.classList.remove('timer-warning');
-            timerBtn.innerText = "開始計時";
+            
+            timerBtn.innerHTML = '<i class="fas fa-stopwatch"></i> 開始計時';
             timerBtn.disabled = false;
-            timerBtn.classList.add('btn-blue'); // 恢復藍色
+            timerBtn.classList.add('btn-blue');
+            timerBtn.style.background = ""; // 清除可能殘留的樣式
 
             currentIndex++;
 
             if (currentIndex >= gameQueue.length) {
-                questionDisplay.innerHTML = "<span style='font-size: 2.5rem; color:var(--accent-color);'>🎉 挑戰結束！</span>";
-                progressText.innerText = "END"; levelTag.innerText = "";
-                nextBtn.innerText = "新的一局";
+                questionDisplay.innerHTML = "<span style='font-size: 2.5rem; color:var(--accent-color);'><i class='fas fa-flag-checkered'></i> 挑戰結束！</span>";
+                progressText.innerText = "END"; levelTag.innerHTML = "";
+                nextBtn.innerHTML = "<i class='fas fa-redo'></i> 新的一局";
                 nextBtn.onclick = () => location.reload();
                 timerBtn.disabled = true;
                 timerBtn.classList.remove('btn-blue');
@@ -381,7 +370,7 @@
             }
 
             progressText.innerText = `${currentIndex + 1} / ${gameQueue.length}`;
-            levelTag.innerText = `● ${q.type}`;
+            levelTag.innerHTML = `<i class="fas fa-tag"></i> ${q.type}`;
             levelTag.style.color = q.color;
         }
 
@@ -389,14 +378,15 @@
         function toggleTimer() {
             if (timerInterval) { stopTimer(); return; }
             let timeLeft = timerDuration;
-            timerDisplay.innerText = timeLeft;
-            timerBtn.innerText = "停止";
-            timerBtn.classList.remove('btn-blue'); // 變色以示區別
+            timerDisplay.innerHTML = '<i class="fas fa-clock"></i> ' + timeLeft;
+            
+            timerBtn.innerHTML = '<i class="fas fa-pause"></i> 停止';
+            timerBtn.classList.remove('btn-blue'); 
             timerBtn.style.background = "#57606f";
             
             timerInterval = setInterval(() => {
                 timeLeft--;
-                timerDisplay.innerText = timeLeft;
+                timerDisplay.innerHTML = '<i class="fas fa-clock"></i> ' + timeLeft;
 
                 if (timeLeft <= 5 && timeLeft > 0) {
                     timerDisplay.classList.add('timer-warning');
@@ -404,9 +394,9 @@
                     playBeep(pitch, 0.15, 'square', 0.5); 
                 } else if (timeLeft === 0) {
                     playBeep(200, 1.5, 'sawtooth', 1.0); 
-                    timerDisplay.innerText = "時間到";
+                    timerDisplay.innerHTML = '<i class="fas fa-times-circle"></i> 時間到';
                     stopTimer();
-                    timerBtn.innerText = "開始計時";
+                    timerBtn.innerHTML = '<i class="fas fa-stopwatch"></i> 開始計時';
                     timerBtn.disabled = true;
                     timerBtn.style.background = "#ccc";
                 }
@@ -418,9 +408,9 @@
             timerInterval = null; 
             timerDisplay.classList.remove('timer-warning'); 
             if(!timerBtn.disabled) {
-                timerBtn.innerText = "開始計時";
+                timerBtn.innerHTML = '<i class="fas fa-stopwatch"></i> 開始計時';
                 timerBtn.classList.add('btn-blue');
-                timerBtn.style.background = ""; // 清除 inline style
+                timerBtn.style.background = ""; 
             }
         }
 
