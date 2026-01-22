@@ -20,9 +20,10 @@
             --secondary-color: #48dbfb;
             --secondary-dark: #0abde3;
             --danger: #ff4757;
+            --demo-color: #f1c40f; 
             --switch-on-color: #007bff; 
-            --prep-color: #3498db; 
-            --draw-color: #2ecc71; 
+            --prep-color: #3498db; /* 構思期：藍色 */
+            --draw-color: #2ecc71; /* 作畫期：綠色 */
         }
 
         * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
@@ -69,31 +70,18 @@
         #demo-btn { color: #f39c12; }
         #demo-btn:hover { background: #f39c12; color: #fff; }
 
-        /* --- ★ 試玩模式標籤 (視覺強化版) --- */
+        /* --- 試玩模式標籤 --- */
         .demo-ribbon {
-            position: absolute;
-            top: 35px;          /* 稍微往下移 */
-            left: -45px;        /* 調整位置確保置中 */
-            width: 180px;       /* 加寬 */
-            background: #ffeb3b; /* 鮮黃色 */
-            color: #d32f2f;      /* 深紅色字體 (警示感) */
-            font-weight: 900;
-            font-size: 1.2rem;   /* 字體加大 */
-            text-align: center;
-            line-height: 40px;   /* 變厚 */
-            transform: rotate(-45deg);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3); /* 強烈陰影 */
-            z-index: 200;       /* 確保在最上層 */
-            display: none;      /* 預設隱藏 */
-            pointer-events: none;
-            border: 3px solid #fff; /* 白色邊框增加層次 */
-            animation: ribbon-pulse 2s infinite ease-in-out; /* 加入呼吸燈動畫 */
+            position: absolute; top: 35px; left: -45px; width: 180px;
+            background: #ffeb3b; color: #d32f2f; font-weight: 900;
+            font-size: 1.2rem; text-align: center; line-height: 40px;
+            transform: rotate(-45deg); box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            z-index: 200; display: none; pointer-events: none;
+            border: 3px solid #fff; animation: ribbon-pulse 2s infinite ease-in-out;
         }
-
-        /* 呼吸燈動畫 */
         @keyframes ribbon-pulse {
             0% { transform: rotate(-45deg) scale(1); }
-            50% { transform: rotate(-45deg) scale(1.05); } /* 稍微放大 */
+            50% { transform: rotate(-45deg) scale(1.05); } 
             100% { transform: rotate(-45deg) scale(1); }
         }
 
@@ -420,7 +408,6 @@
             timerWrapper.classList.add('timer-prep');
             timerDisplay.classList.remove('timer-warning');
             
-            // ★ 提示文字區分
             let hintText = (seconds === 10) ? "新題目：請構思 (勿動筆)" : "接力：請看畫 (勿動筆)";
             timerHint.innerHTML = `<i class="fas fa-brain"></i> ${hintText}`;
             
@@ -484,11 +471,14 @@
                 return;
             }
 
+            // ★ 修正：停止時，回歸到「準備接力 (5秒)」的狀態，而不是作畫時間
+            // 這樣使用者按下「開始」就會進入 5秒 看畫 -> 20秒 作畫 的正確流程
             timerPhase = 'idle';
-            timerWrapper.classList.remove('timer-prep');
-            timerWrapper.classList.add('timer-draw'); 
-            timerHint.innerText = "準備作畫";
-            timerDisplay.innerHTML = drawingDuration; 
+            timerWrapper.classList.remove('timer-draw');
+            timerWrapper.classList.add('timer-prep'); // 藍色
+            
+            timerHint.innerHTML = '<i class="fas fa-brain"></i> 準備接力 (看畫)';
+            timerDisplay.innerHTML = 5; 
             
             timerBtn.innerHTML = '<i class="fas fa-play"></i> 開始計時';
             timerBtn.classList.add('btn-blue');
